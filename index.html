@@ -1,189 +1,170 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-tag">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoWin | Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoWin Pro | التحدي الأسطوري</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --primary: #00ff88;
-            --accent: #ff00ff;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        :root { --primary: #00ff88; --danger: #ff4444; --bg: #0a0a0a; }
         body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(-45deg, #0f0f0f, #1a1a2e, #16213e, #0f3460);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: white;
-            overflow: hidden;
+            font-family: 'Cairo', sans-serif; background: var(--bg); color: white; margin: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden; transition: 0.3s;
         }
-        .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        /* خلفية متحركة مطورة */
+        .bg-animate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%; animation: gradient 15s ease infinite;
         }
-        .challenge-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+
+        .game-container {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
+            padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
+            width: 85%; max-width: 450px; text-align: center;
         }
-        #timer {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--primary);
-            text-shadow: 0 0 20px var(--primary);
-            margin: 10px 0;
-        }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; }
+        .lives { color: var(--danger); font-size: 1.2rem; }
+        
+        /* الكرتون المتفاعل */
+        #avatar { font-size: 80px; transition: 0.5s transform; margin-bottom: 10px; display: block; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+        .jump { animation: jump 0.5s; }
+        @keyframes jump { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-20px);} }
+
+        #timer { font-size: 2.5rem; color: var(--primary); font-family: monospace; }
         input {
-            width: 90%;
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid transparent;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1.2rem;
-            text-align: center;
-            transition: 0.3s;
+            width: 100%; padding: 15px; border-radius: 12px; border: none; margin: 20px 0;
+            background: rgba(255,255,255,0.1); color: white; text-align: center; font-size: 1.2rem;
         }
-        input:focus { border-color: var(--primary); outline: none; background: rgba(255,255,255,0.2); }
         .btn {
-            background: var(--primary);
-            color: black;
-            padding: 15px 40px;
-            border-radius: 50px;
-            border: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
+            background: var(--primary); color: #000; padding: 12px 25px; border-radius: 50px;
+            border: none; font-weight: bold; cursor: pointer; width: 100%;
         }
-        .btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--primary); }
         .hidden { display: none; }
     </style>
 </head>
 <body>
+    <div class="bg-animate"></div>
 
-    <div class="lang-switch">
-        <button class="btn" style="padding: 8px 15px; font-size: 0.8rem;" onclick="toggleLang()">English / عربي</button>
+    <div class="game-container" id="login-box">
+        <h2>أهلاً بك في GoWin 🏆</h2>
+        <p>اكتب اسمك المستعار للدخول في البطولة:</p>
+        <input type="text" id="username" placeholder="مثلاً: صقر التحدي">
+        <button class="btn" onclick="saveUser()">دخول التحدي</button>
     </div>
 
-    <div class="challenge-card" id="game-box">
-        <h2 id="q-text">هل أنت جاهز؟</h2>
-        <div id="timer">GO</div>
-        <input type="text" id="user-answer" class="hidden">
-        <button class="btn" id="start-btn" onclick="startGame()">إبدأ التحدي | Start</button>
+    <div class="game-container hidden" id="game-box">
+        <div class="stats">
+            <div id="player-name">---</div>
+            <div class="lives" id="lives">❤️❤️❤️❤️❤️</div>
+        </div>
+        <span id="avatar">🤔</span>
+        <h3 id="question">استعد...</h3>
+        <div id="timer">0.00</div>
+        <input type="text" id="answer" placeholder="الإجابة هنا...">
     </div>
 
-    <div class="challenge-card hidden" id="result-box">
-        <h1 id="rank-title">🏆</h1>
-        <p id="result-msg"></p>
-        <button class="btn" onclick="share()">نشر التحدي 🌍 Share</button>
-        <p><button style="background:none; color:white; border:none; cursor:pointer;" onclick="location.reload()">Try Again</button></p>
+    <div class="game-container hidden" id="result-box">
+        <h1 id="final-rank">---</h1>
+        <p id="final-score"></p>
+        <button class="btn" onclick="location.reload()">تحدي جديد 🔄</button>
     </div>
 
-    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-    <audio id="tickSound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
+    <audio id="s-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="s-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="s-win" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
     <script>
-        let currentLang = 'ar';
-        const data = {
-            ar: {
-                questions: ["عاصمة السعودية؟", "5 + 5 * 2 = ?", "كم عدد القارات؟"],
-                answers: ["الرياض", "15", "7"],
-                ranks: ["الأسطورة 👑", "الذيب 🐺", "العبقري 🧠", "وحش التحدي 🔥"],
-                start: "ابدأ التحدي",
-                placeholder: "اكتب إجابتك..."
-            },
-            en: {
-                questions: ["Capital of France?", "Color of Sky?", "10 / 2 = ?"],
-                answers: ["Paris", "Blue", "5"],
-                ranks: ["The GOAT 🐐", "Mastermind 🎓", "Ninja 🥷", "Speed Demon ⚡"],
-                start: "Start Challenge",
-                placeholder: "Type here..."
+        let lives = 5; let qIndex = 0; let timer; let time = 0;
+        const questions = [
+            {q: "عاصمة السعودية؟", a: "الرياض"},
+            {q: "5 + 10 * 2؟", a: "25"},
+            {q: "أكبر محيط في العالم؟", a: "الهادي"},
+            {q: "لون الزمرد؟", a: "اخضر"}
+        ];
+
+        // حفظ الاسم والتعرف على الجهاز
+        function saveUser() {
+            let name = document.getElementById('username').value;
+            if(name) {
+                localStorage.setItem('gowin_user', name);
+                startActualGame();
+            }
+        }
+
+        window.onload = () => {
+            if(localStorage.getItem('gowin_user')) {
+                document.getElementById('username').value = localStorage.getItem('gowin_user');
             }
         };
 
-        let qIndex = 0;
-        let time = 0;
-        let timerInterval;
-
-        function toggleLang() {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            const html = document.getElementById('html-tag');
-            html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('start-btn').innerText = data[currentLang].start;
+        function startActualGame() {
+            document.getElementById('login-box').className = 'hidden';
+            document.getElementById('game-box').classList.remove('hidden');
+            document.getElementById('player-name').innerText = localStorage.getItem('gowin_user');
+            loadQuestion();
+            timer = setInterval(() => { time += 0.01; document.getElementById('timer').innerText = time.toFixed(2); }, 10);
         }
 
-        function startGame() {
-            document.getElementById('start-btn').classList.add('hidden');
-            document.getElementById('user-answer').classList.remove('hidden');
-            document.getElementById('user-answer').placeholder = data[currentLang].placeholder;
-            nextQuestion();
-            timerInterval = setInterval(() => {
-                time += 0.1;
-                document.getElementById('timer').innerText = time.toFixed(1);
-                document.getElementById('tickSound').play();
-            }, 100);
-        }
-
-        function nextQuestion() {
-            if(qIndex < data[currentLang].questions.length) {
-                document.getElementById('q-text').innerText = data[currentLang].questions[qIndex];
-                document.getElementById('user-answer').value = "";
+        function loadQuestion() {
+            if(qIndex < questions.length) {
+                document.getElementById('question').innerText = questions[qIndex].q;
+                document.getElementById('avatar').innerText = "🤔";
             } else {
-                win();
+                gameOver(true);
             }
         }
 
-        document.getElementById('user-answer').addEventListener('keyup', (e) => {
+        document.getElementById('answer').addEventListener('keyup', (e) => {
             if(e.key === 'Enter') {
-                if(document.getElementById('user-answer').value.toLowerCase() === data[currentLang].answers[qIndex].toLowerCase()) {
-                    qIndex++;
-                    nextQuestion();
+                let userAns = document.getElementById('answer').value.trim();
+                if(userAns === questions[qIndex].a) {
+                    correct();
+                } else {
+                    wrong();
                 }
             }
         });
 
-        function win() {
-            clearInterval(timerInterval);
-            document.getElementById('game-box').classList.add('hidden');
-            document.getElementById('result-box').classList.remove('hidden');
-            document.getElementById('winSound').play();
-            
-            // ألعاب نارية
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-
-            const ranks = data[currentLang].ranks;
-            const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
-            document.getElementById('rank-title').innerText = randomRank;
-            document.getElementById('result-msg').innerText = currentLang === 'ar' ? 
-                `أنهيت التحدي في ${time.toFixed(1)} ثانية!` : 
-                `Finished in ${time.toFixed(1)} seconds!`;
+        function correct() {
+            document.getElementById('s-correct').play();
+            document.getElementById('avatar').innerText = "🤩";
+            document.getElementById('avatar').classList.add('jump');
+            setTimeout(() => document.getElementById('avatar').classList.remove('jump'), 500);
+            qIndex++;
+            document.getElementById('answer').value = "";
+            loadQuestion();
         }
 
-        function share() {
-            const text = `🔥 GoWin Challenge! I got [${document.getElementById('rank-title').innerText}] in ${time.toFixed(1)}s! Can you beat me? \nLink: ${window.location.href}`;
-            navigator.clipboard.writeText(text);
-            alert("Copied to clipboard! Ready to post.");
+        function wrong() {
+            lives--;
+            document.getElementById('s-wrong').play();
+            document.getElementById('avatar').innerText = "😭";
+            document.getElementById('avatar').classList.add('shake');
+            if(navigator.vibrate) navigator.vibrate(200); // اهتزاز الجوال
+            setTimeout(() => document.getElementById('avatar').classList.remove('shake'), 500);
+            document.getElementById('lives').innerText = "❤️".repeat(lives);
+            document.getElementById('answer').value = "";
+            if(lives <= 0) gameOver(false);
+        }
+
+        function gameOver(isWin) {
+            clearInterval(timer);
+            document.getElementById('game-box').className = 'hidden';
+            document.getElementById('result-box').classList.remove('hidden');
+            if(isWin) {
+                document.getElementById('s-win').play();
+                confetti({particleCount: 200});
+                document.getElementById('final-rank').innerText = "أسطورة! 🏆";
+                document.getElementById('final-score').innerText = `الوقت: ${time.toFixed(2)} ثانية`;
+            } else {
+                document.getElementById('final-rank').innerText = "خسرت! 💀";
+                document.getElementById('final-score').innerText = "حاول مرة ثانية لتدخل لوحة الشرف";
+            }
         }
     </script>
 </body>
