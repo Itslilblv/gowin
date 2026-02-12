@@ -1,170 +1,255 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="html-tag">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GoWin Pro | التحدي الأسطوري</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --primary: #00ff88; --danger: #ff4444; --bg: #0a0a0a; }
-        body {
-            font-family: 'Cairo', sans-serif; background: var(--bg); color: white; margin: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; overflow: hidden; transition: 0.3s;
+        :root { 
+            --primary: #00ff88; 
+            --danger: #ff4444; 
+            --bg: #0a0a0a;
+            --accent: #00d4ff;
         }
-        /* خلفية متحركة مطورة */
+        
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            margin: 0; background: var(--bg); color: white;
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden;
+        }
+
+        /* خلفية ألوان متحركة احترافية */
         .bg-animate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
-            background-size: 400% 400%; animation: gradient 15s ease infinite;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
         }
-        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
         .game-container {
-            background: rgba(255,255,255,0.05); backdrop-filter: blur(15px);
-            padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
-            width: 85%; max-width: 450px; text-align: center;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            padding: 30px; border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; max-width: 450px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
         }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; }
-        .lives { color: var(--danger); font-size: 1.2rem; }
-        
-        /* الكرتون المتفاعل */
-        #avatar { font-size: 80px; transition: 0.5s transform; margin-bottom: 10px; display: block; }
-        .shake { animation: shake 0.5s; }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
-        .jump { animation: jump 0.5s; }
-        @keyframes jump { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-20px);} }
 
-        #timer { font-size: 2.5rem; color: var(--primary); font-family: monospace; }
+        /* زر تغيير اللغة */
+        .lang-btn {
+            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+        }
+
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; }
+        .lives { color: var(--danger); font-size: 1.3rem; letter-spacing: 2px; }
+
+        /* الأفتار (الكرتون المتفاعل) */
+        #avatar { 
+            font-size: 70px; display: block; margin: 10px auto; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .jump { animation: jump 0.5s ease; }
+        .shake { animation: shake 0.4s ease; }
+        @keyframes jump { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-30px) scale(1.1);} }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-12px);} 75% {transform: translateX(12px);} }
+
+        #timer { font-size: 3rem; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px var(--primary); margin: 10px 0; }
+        
         input {
-            width: 100%; padding: 15px; border-radius: 12px; border: none; margin: 20px 0;
-            background: rgba(255,255,255,0.1); color: white; text-align: center; font-size: 1.2rem;
+            width: 100%; padding: 15px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 1.2rem;
+            transition: 0.3s;
         }
+        input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.5); }
+
         .btn {
-            background: var(--primary); color: #000; padding: 12px 25px; border-radius: 50px;
-            border: none; font-weight: bold; cursor: pointer; width: 100%;
+            background: var(--primary); color: #000; padding: 15px; border-radius: 50px;
+            border: none; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(0,255,136,0.3); transition: 0.3s;
         }
+        .btn:active { transform: scale(0.95); }
+
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="bg-animate"></div>
 
-    <div class="game-container" id="login-box">
-        <h2>أهلاً بك في GoWin 🏆</h2>
-        <p>اكتب اسمك المستعار للدخول في البطولة:</p>
-        <input type="text" id="username" placeholder="مثلاً: صقر التحدي">
-        <button class="btn" onclick="saveUser()">دخول التحدي</button>
-    </div>
-
-    <div class="game-container hidden" id="game-box">
-        <div class="stats">
-            <div id="player-name">---</div>
-            <div class="lives" id="lives">❤️❤️❤️❤️❤️</div>
+    <div class="game-container" id="main-card">
+        <button class="lang-btn" onclick="toggleLang()">English / عربي</button>
+        
+        <div id="login-screen">
+            <span id="avatar">👋</span>
+            <h2 id="welcome-msg">مرحباً بك في GoWin</h2>
+            <input type="text" id="username" placeholder="اكتب اسمك هنا...">
+            <button class="btn" style="margin-top:15px" onclick="initGame()">دخول التحدي</button>
         </div>
-        <span id="avatar">🤔</span>
-        <h3 id="question">استعد...</h3>
-        <div id="timer">0.00</div>
-        <input type="text" id="answer" placeholder="الإجابة هنا...">
+
+        <div id="play-screen" class="hidden">
+            <div class="stats">
+                <span id="display-name">---</span>
+                <span class="lives" id="lives-display">❤️❤️❤️❤️❤️</span>
+            </div>
+            <span id="avatar-play">🤔</span>
+            <h3 id="question-text">استعد...</h3>
+            <div id="timer">0.00</div>
+            <input type="text" id="answer-input" placeholder="الإجابة...">
+        </div>
+
+        <div id="result-screen" class="hidden">
+            <span id="avatar-result">🏆</span>
+            <h1 id="rank-name">الأسطورة</h1>
+            <p id="score-text"></p>
+            <button class="btn" onclick="location.reload()">إعادة المحاولة</button>
+        </div>
     </div>
 
-    <div class="game-container hidden" id="result-box">
-        <h1 id="final-rank">---</h1>
-        <p id="final-score"></p>
-        <button class="btn" onclick="location.reload()">تحدي جديد 🔄</button>
-    </div>
-
-    <audio id="s-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-    <audio id="s-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
-    <audio id="s-win" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+    <audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
     <script>
-        let lives = 5; let qIndex = 0; let timer; let time = 0;
-        const questions = [
-            {q: "عاصمة السعودية؟", a: "الرياض"},
-            {q: "5 + 10 * 2؟", a: "25"},
-            {q: "أكبر محيط في العالم؟", a: "الهادي"},
-            {q: "لون الزمرد؟", a: "اخضر"}
-        ];
+        let lang = 'ar';
+        let lives = 5;
+        let qIndex = 0;
+        let timer;
+        let time = 0;
+        let isPlaying = false;
 
-        // حفظ الاسم والتعرف على الجهاز
-        function saveUser() {
-            let name = document.getElementById('username').value;
-            if(name) {
-                localStorage.setItem('gowin_user', name);
-                startActualGame();
-            }
-        }
-
-        window.onload = () => {
-            if(localStorage.getItem('gowin_user')) {
-                document.getElementById('username').value = localStorage.getItem('gowin_user');
+        const content = {
+            ar: {
+                welcome: "مرحباً بك في بطولة GoWin",
+                placeholder: "اكتب اسمك هنا...",
+                questions: [
+                    {q: "عاصمة المملكة العربية السعودية؟", a: "الرياض"},
+                    {q: "كم عدد ألوان قوس قزح؟", a: "7"},
+                    {q: "أكبر قارة في العالم؟", a: "آسيا"},
+                    {q: "ماهو لون البحر؟", a: "ازرق"}
+                ],
+                ranks: ["بطل خارق ⚡", "ذكي جداً 🧠", "أسطورة الملاعب 🏆", "نينجا سريع 🥷"]
+            },
+            en: {
+                welcome: "Welcome to GoWin Championship",
+                placeholder: "Type your name...",
+                questions: [
+                    {q: "What is the capital of USA?", a: "Washington"},
+                    {q: "How many legs does a spider have?", a: "8"},
+                    {q: "What is the color of grass?", a: "Green"},
+                    {q: "10 minus 3 equals?", a: "7"}
+                ],
+                ranks: ["The GOAT 🐐", "Mastermind 🎓", "Speed Demon ⚡", "World Class 🌍"]
             }
         };
 
-        function startActualGame() {
-            document.getElementById('login-box').className = 'hidden';
-            document.getElementById('game-box').classList.remove('hidden');
-            document.getElementById('player-name').innerText = localStorage.getItem('gowin_user');
-            loadQuestion();
-            timer = setInterval(() => { time += 0.01; document.getElementById('timer').innerText = time.toFixed(2); }, 10);
+        function toggleLang() {
+            lang = lang === 'ar' ? 'en' : 'ar';
+            document.getElementById('html-tag').dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('welcome-msg').innerText = content[lang].welcome;
+            document.getElementById('username').placeholder = content[lang].placeholder;
         }
 
-        function loadQuestion() {
-            if(qIndex < questions.length) {
-                document.getElementById('question').innerText = questions[qIndex].q;
-                document.getElementById('avatar').innerText = "🤔";
+        function initGame() {
+            const name = document.getElementById('username').value;
+            if(!name) return alert(lang === 'ar' ? "من فضلك اكتب اسمك!" : "Please enter your name!");
+            
+            localStorage.setItem('gowin_player', name);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('play-screen').classList.remove('hidden');
+            document.getElementById('display-name').innerText = name;
+            
+            startChallenge();
+        }
+
+        function startChallenge() {
+            isPlaying = true;
+            loadNextQuestion();
+            timer = setInterval(() => {
+                time += 0.01;
+                document.getElementById('timer').innerText = time.toFixed(2);
+            }, 10);
+        }
+
+        function loadNextQuestion() {
+            const qList = content[lang].questions;
+            if(qIndex < qList.length) {
+                document.getElementById('question-text').innerText = qList[qIndex].q;
+                document.getElementById('avatar-play').innerText = "🤔";
+                document.getElementById('answer-input').value = "";
+                document.getElementById('answer-input').focus();
             } else {
-                gameOver(true);
+                finishGame(true);
             }
         }
 
-        document.getElementById('answer').addEventListener('keyup', (e) => {
-            if(e.key === 'Enter') {
-                let userAns = document.getElementById('answer').value.trim();
-                if(userAns === questions[qIndex].a) {
-                    correct();
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && isPlaying) {
+                const userAns = document.getElementById('answer-input').value.trim().toLowerCase();
+                const correctAns = content[lang].questions[qIndex].a.toLowerCase();
+                
+                if(userAns === correctAns) {
+                    handleCorrect();
                 } else {
-                    wrong();
+                    handleWrong();
                 }
             }
         });
 
-        function correct() {
-            document.getElementById('s-correct').play();
-            document.getElementById('avatar').innerText = "🤩";
-            document.getElementById('avatar').classList.add('jump');
-            setTimeout(() => document.getElementById('avatar').classList.remove('jump'), 500);
+        function handleCorrect() {
+            document.getElementById('snd-correct').play();
+            document.getElementById('avatar-play').innerText = "🤩";
+            document.getElementById('avatar-play').classList.add('jump');
+            setTimeout(() => document.getElementById('avatar-play').classList.remove('jump'), 500);
             qIndex++;
-            document.getElementById('answer').value = "";
-            loadQuestion();
+            loadNextQuestion();
         }
 
-        function wrong() {
+        function handleWrong() {
             lives--;
-            document.getElementById('s-wrong').play();
-            document.getElementById('avatar').innerText = "😭";
-            document.getElementById('avatar').classList.add('shake');
-            if(navigator.vibrate) navigator.vibrate(200); // اهتزاز الجوال
-            setTimeout(() => document.getElementById('avatar').classList.remove('shake'), 500);
-            document.getElementById('lives').innerText = "❤️".repeat(lives);
-            document.getElementById('answer').value = "";
-            if(lives <= 0) gameOver(false);
+            document.getElementById('snd-wrong').play();
+            document.getElementById('avatar-play').innerText = "😭";
+            document.getElementById('avatar-play').classList.add('shake');
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // اهتزاز
+            
+            document.getElementById('lives-display').innerText = "❤️".repeat(lives);
+            setTimeout(() => document.getElementById('avatar-play').classList.remove('shake'), 400);
+            
+            if(lives <= 0) finishGame(false);
         }
 
-        function gameOver(isWin) {
+        function finishGame(win) {
+            isPlaying = false;
             clearInterval(timer);
-            document.getElementById('game-box').className = 'hidden';
-            document.getElementById('result-box').classList.remove('hidden');
-            if(isWin) {
-                document.getElementById('s-win').play();
-                confetti({particleCount: 200});
-                document.getElementById('final-rank').innerText = "أسطورة! 🏆";
-                document.getElementById('final-score').innerText = `الوقت: ${time.toFixed(2)} ثانية`;
+            document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            if(win) {
+                document.getElementById('snd-win').play();
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                const ranks = content[lang].ranks;
+                document.getElementById('rank-name').innerText = ranks[Math.floor(Math.random()*ranks.length)];
+                document.getElementById('score-text').innerText = (lang === 'ar' ? "الوقت القياسي: " : "Record Time: ") + time.toFixed(2) + "s";
+                document.getElementById('avatar-result').innerText = "🏆";
             } else {
-                document.getElementById('final-rank').innerText = "خسرت! 💀";
-                document.getElementById('final-score').innerText = "حاول مرة ثانية لتدخل لوحة الشرف";
+                document.getElementById('rank-name').innerText = lang === 'ar' ? "حاول مجدداً" : "Game Over";
+                document.getElementById('score-text').innerText = lang === 'ar' ? "نفذت منك الحيوات!" : "You ran out of lives!";
+                document.getElementById('avatar-result').innerText = "💀";
             }
+        }
+
+        // استعادة الاسم تلقائياً
+        if(localStorage.getItem('gowin_player')) {
+            document.getElementById('username').value = localStorage.getItem('gowin_player');
         }
     </script>
 </body>
