@@ -7,9 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
-        
         :root { --primary: #00ff88; --danger: #ff4444; --bg: #050505; }
-        
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
         body {
@@ -18,181 +16,154 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* خلفية ألوان متحركة احترافية */
+        /* 1. خلفية ألوان متحركة */
         .bg-animate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f3460);
-            background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
+            background-size: 400% 400%; animation: gradientBG 10s ease infinite;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
 
         .game-card {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(20px);
-            padding: 30px; border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 90%; max-width: 420px; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px);
+            padding: 30px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
+        /* 2. نظام الحيوات (5 قلوب) */
         .stats { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .lives { color: var(--danger); font-size: 1.2rem; filter: drop-shadow(0 0 5px var(--danger)); }
 
+        /* 3. الكرتون التفاعلي */
         #avatar { font-size: 80px; display: block; margin: 10px auto; transition: 0.3s; }
         
-        #timer { 
-            font-size: 3.5rem; font-weight: 900; color: var(--primary); 
-            text-shadow: 0 0 20px rgba(0,255,136,0.5); font-family: monospace;
-        }
+        /* 4. إيقاف التوقيت التلقائي */
+        #timer { font-size: 3.5rem; font-weight: 900; color: var(--primary); font-family: monospace; }
 
         input {
             width: 100%; padding: 15px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1);
             background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 1.3rem; margin: 20px 0;
         }
-        input:focus { border-color: var(--primary); outline: none; }
 
         .btn {
             background: var(--primary); color: black; padding: 15px; border-radius: 50px;
             border: none; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.2rem;
-            box-shadow: 0 10px 20px rgba(0,255,136,0.3);
         }
 
         .hidden { display: none; }
-        
-        /* حركات التفاعل */
-        .shake { animation: shake 0.4s ease-in-out; }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
-        .jump { animation: jump 0.5s ease; }
-        @keyframes jump { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-25px);} }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake { 0%,100% {transform:translateX(0)} 25% {transform:translateX(-10px)} 75% {transform:translateX(10px)} }
+        .jump { animation: jump 0.5s; }
+        @keyframes jump { 0%,100% {transform:translateY(0)} 50% {transform:translateY(-25px)} }
     </style>
 </head>
 <body>
     <div class="bg-animate"></div>
 
-    <div class="game-card" id="start-screen">
-        <span style="font-size: 60px;">🎮</span>
-        <h1 style="margin: 10px 0;">GoWin Pro</h1>
-        <p>أدخل اسمك المستعار للمشاركة في البطولة</p>
-        <input type="text" id="player-name-input" placeholder="مثلاً: بطل التحدي">
-        <button class="btn" onclick="initGame()">دخول التحدي</button>
+    <div class="game-card" id="start-box">
+        <h1 id="welcome-title">البطولة بدأت!</h1>
+        <p>اكتب اسمك للمنافسة في لوحة الشرف:</p>
+        <input type="text" id="username" placeholder="اسمك المستعار...">
+        <button class="btn" onclick="startTheGame()">دخول التحدي</button>
     </div>
 
-    <div class="game-card hidden" id="play-screen">
+    <div class="game-card hidden" id="game-box">
         <div class="stats">
-            <span id="display-name" style="font-weight: bold;">---</span>
-            <span class="lives" id="lives-box">❤️❤️❤️❤️❤️</span>
+            <span id="player-display"></span>
+            <span class="lives" id="lives-display">❤️❤️❤️❤️❤️</span>
         </div>
         <span id="avatar">🤔</span>
-        <h2 id="question-text">استعد...</h2>
+        <h2 id="question">تحميل...</h2>
         <div id="timer">0.00</div>
-        <input type="text" id="answer-input" placeholder="اكتب إجابتك هنا...">
+        <input type="text" id="answer" placeholder="اكتب إجابتك هنا...">
     </div>
 
-    <div class="game-card hidden" id="result-screen">
+    <div class="game-card hidden" id="result-box">
         <span id="res-emoji" style="font-size: 80px;">🏆</span>
-        <h1 id="res-title">كفو يا بطل!</h1>
-        <p id="res-desc"></p>
-        <button class="btn" onclick="location.reload()">تحدي جديد 🔄</button>
+        <h1 id="res-title"></h1>
+        <p id="res-time"></p>
+        <button class="btn" onclick="location.reload()">إعادة المحاولة</button>
     </div>
 
-    <audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-    <audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
-    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+    <audio id="s-correct" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <audio id="s-wrong" src="https://www.myinstants.com/media/sounds/wrong-answer.mp3"></audio>
+    <audio id="s-win" src="https://www.myinstants.com/media/sounds/success-fanfare-trumpets.mp3"></audio>
 
     <script>
-        let lives = 5; let qIndex = 0; let time = 0; let timer; let isActive = false;
-        
-        const quiz = [
-            {q: "عاصمة المملكة العربية السعودية؟", a: "الرياض"},
-            {q: "ماهو لون الزمرد؟", a: "اخضر"},
+        let lives = 5; let qIndex = 0; let time = 0; let timer;
+        const questions = [
+            {q: "عاصمة السعودية؟", a: "الرياض"},
             {q: "5 + 10 * 2؟", a: "25"},
-            {q: "أسرع حيوان بري في العالم؟", a: "الفهد"}
+            {q: "أكبر محيط في العالم؟", a: "الهادي"},
+            {q: "لون غابة الأمازون؟", a: "اخضر"}
         ];
 
-        function initGame() {
-            const name = document.getElementById('player-name-input').value.trim();
+        function startTheGame() {
+            let name = document.getElementById('username').value;
             if(!name) return alert("سجل اسمك أولاً!");
-            
-            localStorage.setItem('gowin_user', name);
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('play-screen').classList.remove('hidden');
-            document.getElementById('display-name').innerText = name;
-            
-            startRound();
+            localStorage.setItem('gowin_player', name);
+            document.getElementById('start-box').classList.add('hidden');
+            document.getElementById('game-box').classList.remove('hidden');
+            document.getElementById('player-display').innerText = name;
+            loadQ();
+            // بدء التوقيت
+            timer = setInterval(() => { time += 0.01; document.getElementById('timer').innerText = time.toFixed(2); }, 10);
         }
 
-        function startRound() {
-            isActive = true;
-            loadQuestion();
-            timer = setInterval(() => {
-                time += 0.01;
-                document.getElementById('timer').innerText = time.toFixed(2);
-            }, 10);
-        }
-
-        function loadQuestion() {
-            if(qIndex < quiz.length) {
-                document.getElementById('question-text').innerText = quiz[qIndex].q;
+        function loadQ() {
+            if(qIndex < questions.length) {
+                document.getElementById('question').innerText = questions[qIndex].q;
                 document.getElementById('avatar').innerText = "🤔";
-                document.getElementById('answer-input').value = "";
-                document.getElementById('answer-input').focus();
+                document.getElementById('answer').value = "";
+                document.getElementById('answer').focus();
             } else {
-                finish(true);
+                end(true);
             }
         }
 
-        document.getElementById('answer-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && isActive) {
-                const userAns = document.getElementById('answer-input').value.trim();
-                if(userAns === quiz[qIndex].a) {
-                    // صح
-                    document.getElementById('snd-correct').play();
+        document.getElementById('answer').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                let ans = document.getElementById('answer').value.trim();
+                if(ans === questions[qIndex].a) {
+                    // صح: فرحة + صوت + كرتون يرقص
+                    document.getElementById('s-correct').play();
                     document.getElementById('avatar').innerText = "🤩";
                     document.getElementById('avatar').classList.add('jump');
-                    setTimeout(() => document.getElementById('avatar').classList.remove('jump'), 500);
-                    qIndex++;
-                    loadQuestion();
+                    setTimeout(() => { document.getElementById('avatar').classList.remove('jump'); qIndex++; loadQ(); }, 500);
                 } else {
-                    // خطأ
+                    // خطأ: زعل + صوت + اهتزاز + نقص قلب
                     lives--;
-                    document.getElementById('snd-wrong').play();
+                    document.getElementById('s-wrong').play();
                     document.getElementById('avatar').innerText = "😭";
-                    document.getElementById('play-screen').classList.add('shake');
-                    if(navigator.vibrate) navigator.vibrate(200);
-                    document.getElementById('lives-box').innerText = "❤️".repeat(lives);
-                    setTimeout(() => document.getElementById('play-screen').classList.remove('shake'), 400);
-                    document.getElementById('answer-input').value = "";
-                    if(lives <= 0) finish(false);
+                    document.getElementById('game-box').classList.add('shake');
+                    if(navigator.vibrate) navigator.vibrate(200); // 6. اهتزاز
+                    document.getElementById('lives-display').innerText = "❤️".repeat(lives);
+                    setTimeout(() => document.getElementById('game-box').classList.remove('shake'), 400);
+                    document.getElementById('answer').value = "";
+                    if(lives <= 0) end(false);
                 }
             }
         });
 
-        function finish(win) {
-            isActive = false;
-            clearInterval(timer); // إيقاف التوقيت
-            document.getElementById('play-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-
+        function end(win) {
+            clearInterval(timer); // 7. إيقاف التوقيت
+            document.getElementById('game-box').classList.add('hidden');
+            document.getElementById('result-box').classList.remove('hidden');
             if(win) {
-                document.getElementById('snd-win').play();
-                confetti({ particleCount: 150, spread: 70 });
-                document.getElementById('res-title').innerText = "أسطورة! 🏆";
-                document.getElementById('res-desc').innerText = `أنهيت البطولة في ${time.toFixed(2)} ثانية`;
+                document.getElementById('s-win').play();
+                confetti({particleCount: 150});
+                document.getElementById('res-title').innerText = "كفو يا بطل!";
+                document.getElementById('res-time').innerText = "وقتك: " + time.toFixed(2) + " ثانية";
             } else {
                 document.getElementById('res-emoji').innerText = "💀";
-                document.getElementById('res-title').innerText = "خسرت الحيوات!";
-                document.getElementById('res-desc').innerText = "حاول مرة أخرى لتحطيم الأرقام";
+                document.getElementById('res-title').innerText = "انتهت الحيوات!";
+                document.getElementById('res-time').innerText = "حاول مرة ثانية لكسر الرقم القياسي";
             }
         }
 
-        // استعادة الاسم
-        if(localStorage.getItem('gowin_user')) {
-            document.getElementById('player-name-input').value = localStorage.getItem('gowin_user');
+        // استعادة الاسم تلقائياً
+        if(localStorage.getItem('gowin_player')) {
+            document.getElementById('username').value = localStorage.getItem('gowin_player');
         }
     </script>
 </body>
