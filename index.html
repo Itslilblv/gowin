@@ -1,255 +1,149 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-tag">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GoWin Pro | التحدي الأسطوري</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { 
-            --primary: #00ff88; 
-            --danger: #ff4444; 
-            --bg: #0a0a0a;
-            --accent: #00d4ff;
-        }
-        
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-
+        :root { --primary: #00ff88; --danger: #ff4444; --bg: #0a0a0a; }
         body {
-            margin: 0; background: var(--bg); color: white;
-            display: flex; align-items: center; justify-content: center;
-            height: 100vh; overflow: hidden;
+            font-family: 'Cairo', sans-serif; background: var(--bg); color: white; margin: 0;
+            display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden;
         }
-
-        /* خلفية ألوان متحركة احترافية */
         .bg-animate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f3460);
-            background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
+            background-size: 400% 400%; animation: gradientBG 10s ease infinite;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% {background-position:0% 50%} 50% {background-position:100% 50%} 100% {background-position:0% 50%} }
 
         .game-container {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(20px);
-            padding: 30px; border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 90%; max-width: 450px; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            position: relative;
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+            padding: 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
+            width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-
-        /* زر تغيير اللغة */
-        .lang-btn {
-            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.1); border: none; color: white;
-            padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
-        }
-
-        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; }
-        .lives { color: var(--danger); font-size: 1.3rem; letter-spacing: 2px; }
-
-        /* الأفتار (الكرتون المتفاعل) */
-        #avatar { 
-            font-size: 70px; display: block; margin: 10px auto; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .jump { animation: jump 0.5s ease; }
-        .shake { animation: shake 0.4s ease; }
-        @keyframes jump { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-30px) scale(1.1);} }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-12px);} 75% {transform: translateX(12px);} }
-
-        #timer { font-size: 3rem; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px var(--primary); margin: 10px 0; }
-        
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .lives { color: var(--danger); font-size: 1.2rem; }
+        #avatar { font-size: 70px; display: block; transition: 0.3s; }
+        #timer { font-size: 3rem; font-weight: 900; color: var(--primary); margin: 10px 0; font-family: monospace; }
         input {
-            width: 100%; padding: 15px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 1.2rem;
-            transition: 0.3s;
+            width: 100%; padding: 15px; border-radius: 15px; border: none;
+            background: rgba(255,255,255,0.1); color: white; text-align: center; font-size: 1.2rem;
         }
-        input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.5); }
-
         .btn {
             background: var(--primary); color: #000; padding: 15px; border-radius: 50px;
-            border: none; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.1rem;
-            box-shadow: 0 10px 20px rgba(0,255,136,0.3); transition: 0.3s;
+            border: none; font-weight: bold; width: 100%; cursor: pointer; font-size: 1.1rem;
         }
-        .btn:active { transform: scale(0.95); }
-
         .hidden { display: none; }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% {transform:translateX(0)} 25% {transform:translateX(-10px)} 75% {transform:translateX(10px)} }
     </style>
 </head>
 <body>
     <div class="bg-animate"></div>
 
-    <div class="game-container" id="main-card">
-        <button class="lang-btn" onclick="toggleLang()">English / عربي</button>
-        
-        <div id="login-screen">
-            <span id="avatar">👋</span>
-            <h2 id="welcome-msg">مرحباً بك في GoWin</h2>
-            <input type="text" id="username" placeholder="اكتب اسمك هنا...">
-            <button class="btn" style="margin-top:15px" onclick="initGame()">دخول التحدي</button>
-        </div>
-
-        <div id="play-screen" class="hidden">
-            <div class="stats">
-                <span id="display-name">---</span>
-                <span class="lives" id="lives-display">❤️❤️❤️❤️❤️</span>
-            </div>
-            <span id="avatar-play">🤔</span>
-            <h3 id="question-text">استعد...</h3>
-            <div id="timer">0.00</div>
-            <input type="text" id="answer-input" placeholder="الإجابة...">
-        </div>
-
-        <div id="result-screen" class="hidden">
-            <span id="avatar-result">🏆</span>
-            <h1 id="rank-name">الأسطورة</h1>
-            <p id="score-text"></p>
-            <button class="btn" onclick="location.reload()">إعادة المحاولة</button>
-        </div>
+    <div class="game-container" id="login-box">
+        <span style="font-size: 50px;">🏆</span>
+        <h2>بطولة GoWin</h2>
+        <input type="text" id="username" placeholder="اكتب اسمك للمشاركة...">
+        <button class="btn" style="margin-top:20px" onclick="startGame()">دخول التحدي</button>
     </div>
 
-    <audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-    <audio id="snd-wrong" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
-    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+    <div class="game-container hidden" id="game-box">
+        <div class="stats">
+            <span id="p-name"></span>
+            <span class="lives" id="lives">❤️❤️❤️❤️❤️</span>
+        </div>
+        <span id="avatar">🤔</span>
+        <h3 id="question">جاري التحميل...</h3>
+        <div id="timer">0.00</div>
+        <input type="text" id="ans-input" placeholder="اكتب الإجابة واضغط Enter">
+    </div>
+
+    <div class="game-container hidden" id="result-box">
+        <span id="res-avatar" style="font-size: 80px;">🏆</span>
+        <h2 id="res-title"></h2>
+        <p id="res-time"></p>
+        <button class="btn" onclick="location.reload()">إعادة التحدي</button>
+    </div>
+
+    <audio id="snd-correct" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <audio id="snd-wrong" src="https://www.myinstants.com/media/sounds/wrong-answer.mp3"></audio>
+    <audio id="snd-win" src="https://www.myinstants.com/media/sounds/success-fanfare-trumpets.mp3"></audio>
 
     <script>
-        let lang = 'ar';
-        let lives = 5;
-        let qIndex = 0;
-        let timer;
-        let time = 0;
-        let isPlaying = false;
+        let lives = 5; let qIndex = 0; let time = 0; let timerInterval;
+        const questions = [
+            {q: "عاصمة السعودية؟", a: "الرياض"},
+            {q: "5 + 15؟", a: "20"},
+            {q: "لون غابة الأمازون؟", a: "اخضر"},
+            {q: "ملك الغابة؟", a: "الاسد"}
+        ];
 
-        const content = {
-            ar: {
-                welcome: "مرحباً بك في بطولة GoWin",
-                placeholder: "اكتب اسمك هنا...",
-                questions: [
-                    {q: "عاصمة المملكة العربية السعودية؟", a: "الرياض"},
-                    {q: "كم عدد ألوان قوس قزح؟", a: "7"},
-                    {q: "أكبر قارة في العالم؟", a: "آسيا"},
-                    {q: "ماهو لون البحر؟", a: "ازرق"}
-                ],
-                ranks: ["بطل خارق ⚡", "ذكي جداً 🧠", "أسطورة الملاعب 🏆", "نينجا سريع 🥷"]
-            },
-            en: {
-                welcome: "Welcome to GoWin Championship",
-                placeholder: "Type your name...",
-                questions: [
-                    {q: "What is the capital of USA?", a: "Washington"},
-                    {q: "How many legs does a spider have?", a: "8"},
-                    {q: "What is the color of grass?", a: "Green"},
-                    {q: "10 minus 3 equals?", a: "7"}
-                ],
-                ranks: ["The GOAT 🐐", "Mastermind 🎓", "Speed Demon ⚡", "World Class 🌍"]
-            }
-        };
-
-        function toggleLang() {
-            lang = lang === 'ar' ? 'en' : 'ar';
-            document.getElementById('html-tag').dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('welcome-msg').innerText = content[lang].welcome;
-            document.getElementById('username').placeholder = content[lang].placeholder;
+        function startGame() {
+            let user = document.getElementById('username').value;
+            if(!user) return alert("سجل اسمك أولاً!");
+            localStorage.setItem('gowin_user', user);
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('game-box').classList.remove('hidden');
+            document.getElementById('p-name').innerText = user;
+            nextQ();
+            runTimer();
         }
 
-        function initGame() {
-            const name = document.getElementById('username').value;
-            if(!name) return alert(lang === 'ar' ? "من فضلك اكتب اسمك!" : "Please enter your name!");
-            
-            localStorage.setItem('gowin_player', name);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('play-screen').classList.remove('hidden');
-            document.getElementById('display-name').innerText = name;
-            
-            startChallenge();
-        }
-
-        function startChallenge() {
-            isPlaying = true;
-            loadNextQuestion();
-            timer = setInterval(() => {
+        function runTimer() {
+            timerInterval = setInterval(() => {
                 time += 0.01;
                 document.getElementById('timer').innerText = time.toFixed(2);
             }, 10);
         }
 
-        function loadNextQuestion() {
-            const qList = content[lang].questions;
-            if(qIndex < qList.length) {
-                document.getElementById('question-text').innerText = qList[qIndex].q;
-                document.getElementById('avatar-play').innerText = "🤔";
-                document.getElementById('answer-input').value = "";
-                document.getElementById('answer-input').focus();
+        function nextQ() {
+            if(qIndex < questions.length) {
+                document.getElementById('question').innerText = questions[qIndex].q;
+                document.getElementById('ans-input').value = "";
+                document.getElementById('ans-input').focus();
             } else {
-                finishGame(true);
+                endGame(true);
             }
         }
 
-        document.getElementById('answer-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && isPlaying) {
-                const userAns = document.getElementById('answer-input').value.trim().toLowerCase();
-                const correctAns = content[lang].questions[qIndex].a.toLowerCase();
-                
-                if(userAns === correctAns) {
-                    handleCorrect();
+        document.getElementById('ans-input').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                let val = this.value.trim();
+                if(val === questions[qIndex].a) {
+                    // إيقاف مؤقت للتوقيت عند الإجابة الصحيحة لإظهار التفاعل
+                    document.getElementById('snd-correct').play();
+                    document.getElementById('avatar').innerText = "🤩";
+                    qIndex++;
+                    setTimeout(nextQ, 300);
                 } else {
-                    handleWrong();
+                    document.getElementById('snd-wrong').play();
+                    document.getElementById('avatar').innerText = "😭";
+                    document.getElementById('game-box').classList.add('shake');
+                    setTimeout(() => document.getElementById('game-box').classList.remove('shake'), 400);
+                    lives--;
+                    document.getElementById('lives').innerText = "❤️".repeat(lives);
+                    if(lives <= 0) endGame(false);
                 }
             }
         });
 
-        function handleCorrect() {
-            document.getElementById('snd-correct').play();
-            document.getElementById('avatar-play').innerText = "🤩";
-            document.getElementById('avatar-play').classList.add('jump');
-            setTimeout(() => document.getElementById('avatar-play').classList.remove('jump'), 500);
-            qIndex++;
-            loadNextQuestion();
-        }
-
-        function handleWrong() {
-            lives--;
-            document.getElementById('snd-wrong').play();
-            document.getElementById('avatar-play').innerText = "😭";
-            document.getElementById('avatar-play').classList.add('shake');
-            if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // اهتزاز
-            
-            document.getElementById('lives-display').innerText = "❤️".repeat(lives);
-            setTimeout(() => document.getElementById('avatar-play').classList.remove('shake'), 400);
-            
-            if(lives <= 0) finishGame(false);
-        }
-
-        function finishGame(win) {
-            isPlaying = false;
-            clearInterval(timer);
-            document.getElementById('play-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-
+        function endGame(win) {
+            clearInterval(timerInterval); // إيقاف التوقيت نهائياً
+            document.getElementById('game-box').classList.add('hidden');
+            document.getElementById('result-box').classList.remove('hidden');
             if(win) {
                 document.getElementById('snd-win').play();
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                const ranks = content[lang].ranks;
-                document.getElementById('rank-name').innerText = ranks[Math.floor(Math.random()*ranks.length)];
-                document.getElementById('score-text').innerText = (lang === 'ar' ? "الوقت القياسي: " : "Record Time: ") + time.toFixed(2) + "s";
-                document.getElementById('avatar-result').innerText = "🏆";
+                confetti({particleCount: 150});
+                document.getElementById('res-title').innerText = "كفو! أنت بطل";
+                document.getElementById('res-time').innerText = "أنهيت البطولة في: " + time.toFixed(2) + " ثانية";
             } else {
-                document.getElementById('rank-name').innerText = lang === 'ar' ? "حاول مجدداً" : "Game Over";
-                document.getElementById('score-text').innerText = lang === 'ar' ? "نفذت منك الحيوات!" : "You ran out of lives!";
-                document.getElementById('avatar-result').innerText = "💀";
+                document.getElementById('res-avatar').innerText = "💀";
+                document.getElementById('res-title').innerText = "للأسف خسرنا البطل";
+                document.getElementById('res-time').innerText = "حاول مرة ثانية لكسر الرقم القياسي";
             }
-        }
-
-        // استعادة الاسم تلقائياً
-        if(localStorage.getItem('gowin_player')) {
-            document.getElementById('username').value = localStorage.getItem('gowin_player');
         }
     </script>
 </body>
