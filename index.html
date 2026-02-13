@@ -3,143 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gowin Pro - القوت الذهبي</title>
+    <title>Gowin Pro - Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050a14; --card: rgba(255, 215, 0, 0.08); }
-        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
-        .header { padding: 30px; border-bottom: 3px solid var(--gold); background: linear-gradient(180deg, #000, #050a14); }
-        .goat-banner { background: var(--gold); color: black; padding: 12px; font-weight: 900; font-size: 1.3rem; box-shadow: 0 0 25px rgba(255,215,0,0.4); margin-bottom: 20px; }
-        .player-card { background: var(--card); margin: 12px auto; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; width: 92%; max-width: 550px; border-right: 6px solid var(--gold); transition: 0.4s; }
-        .top-player { border: 2px solid var(--gold); background: rgba(255, 215, 0, 0.15); box-shadow: 0 0 15px var(--gold); }
-        .play-btn { background: linear-gradient(45deg, #ffd700, #ffae00); color: black; padding: 22px 50px; border: none; border-radius: 50px; font-weight: 900; font-size: 1.5rem; cursor: pointer; margin-top: 30px; }
-        #game-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #0a192f, #050a14); z-index: 2000; padding-top: 50px; display: none; }
-        .option-btn { display: block; width: 85%; max-width: 450px; margin: 15px auto; padding: 20px; border: 2px solid var(--gold); background: rgba(255,255,255,0.02); color: white; border-radius: 18px; cursor: pointer; font-size: 1.2rem; font-weight: bold; }
-        .timer { font-size: 4rem; color: var(--gold); font-weight: 900; }
-        .hearts { font-size: 2.2rem; }
+        :root { --gold: #ffd700; --bg: #050a14; }
+
+        /* خلفية متحركة إبداعية */
+        body { 
+            background: linear-gradient(-45deg, #050a14, #0a192f, #001f3f, #050a14);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white; font-family: 'Cairo', sans-serif; text-align: center; margin: 0; min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* اللوجو المتحرك */
+        .logo-container { padding: 40px 20px; }
+        .main-logo {
+            font-size: 3.5rem; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: logoPulse 2s infinite ease-in-out;
+            display: inline-block; letter-spacing: 5px;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--gold)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--gold)); }
+        }
+
+        .goat-banner { 
+            background: rgba(255, 215, 0, 0.9); color: black; padding: 10px; 
+            font-weight: 900; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        /* التبويبات الزجاجية */
+        .nav-tabs {
+            display: flex; justify-content: center; background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px); sticky: top; z-index: 1000; border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+        .tab-item {
+            flex: 1; padding: 15px; cursor: pointer; font-weight: bold; transition: 0.3s;
+            color: #aaa; border-bottom: 3px solid transparent;
+        }
+        .tab-item.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(255,215,0,0.1); }
+
+        /* البطاقات */
+        .player-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(5px);
+            margin: 12px auto; padding: 15px; border-radius: 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            width: 90%; max-width: 500px; border: 1px solid rgba(255,215,0,0.2);
+            transition: 0.3s;
+        }
+        .top-goat-card { border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(255,215,0,0.2); background: rgba(255,215,0,0.1); }
+
+        .play-btn {
+            background: var(--gold); color: black; padding: 20px 60px; border: none;
+            border-radius: 50px; font-weight: 900; font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255,215,0,0.4); margin: 30px 0;
+        }
+
+        #game-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        .option-btn {
+            width: 85%; max-width: 400px; padding: 20px; margin: 10px;
+            border: 2px solid var(--gold); background: none; color: white;
+            border-radius: 15px; cursor: pointer; font-size: 1.2rem; font-weight: 900;
+        }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
-<body onclick="initMusic()">
+<body onclick="startMusicOnce()">
 
     <audio id="bgMusic" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"></audio>
     <audio id="winSnd" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
     <audio id="loseSnd" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
-    <div class="header">
-        <h1>⚔️ GOWIN PRO ⚔️</h1>
-        <div class="goat-banner">👑 GOLDEN GOAT: <span id="goat-name">تحميل...</span> 👑</div>
+    <div class="logo-container">
+        <div class="main-logo">GOWIN PRO</div>
     </div>
 
-    <div id="lobby">
-        <button class="play-btn" onclick="startChallenge()">دخول التحدي 🏆</button>
-        <div id="leaderboard-list" style="margin-top: 30px;"></div>
+    <div class="goat-banner">🏆 THE GOLDEN GOAT: <span id="top-goat-display">...</span> 🏆</div>
+
+    <div class="nav-tabs">
+        <div class="tab-item active" onclick="showTab('leaderboard', this)">📊 المتصدرون</div>
+        <div class="tab-item" onclick="showTab('info', this)">📜 القوانين</div>
+    </div>
+
+    <div id="leaderboard" class="tab-content" style="padding: 20px;">
+        <button class="play-btn" onclick="launchGame()">ابدأ المنافسة ⚔️</button>
+        <div id="list-container"></div>
+    </div>
+
+    <div id="info" class="tab-content hidden" style="padding: 40px 20px;">
+        <h2 style="color:var(--gold)">كيف تصبح القوت؟</h2>
+        <p>1. أجب على كل الأسئلة (6/6).</p>
+        <p>2. حافظ على حيواتك كاملة ❤️.</p>
+        <p>3. كن الأسرع في الإجابة بالثواني ⏱️.</p>
     </div>
 
     <div id="game-overlay">
-        <div class="hearts" id="lives-display">❤️❤️❤️❤️❤️</div>
-        <div class="timer" id="timer-display">0s</div>
-        <h2 id="question-text" style="padding: 20px;"></h2>
-        <div id="options-container"></div>
+        <div style="font-size: 2.5rem;" id="game-hearts">❤️❤️❤️❤️❤️</div>
+        <div style="font-size: 4rem; color: var(--gold); font-weight: 900;" id="game-timer">0s</div>
+        <h2 id="q-txt" style="padding: 20px;"></h2>
+        <div id="opts-container" style="width: 100%;"></div>
     </div>
 
 <script>
     const BIN_ID = '698ec55bd0ea881f40b6b5e3'; 
     const API_KEY = '$2a$10$zP2nglkzKrG1K81/D3uY1ejRP73C/zxIpE9QiFtYPOS2pU9saHnU.'; 
-
-    const bgMusic = document.getElementById('bgMusic');
-    const winSnd = document.getElementById('winSnd');
-    const loseSnd = document.getElementById('loseSnd');
     
-    // ضبط الصوت على 35%
-    [bgMusic, winSnd, loseSnd].forEach(s => s.volume = 0.35);
+    const bgM = document.getElementById('bgMusic');
+    [bgM, document.getElementById('winSnd'), document.getElementById('loseSnd')].forEach(s => s.volume = 0.35);
 
-    let isMusicStarted = false;
-    function initMusic() {
-        if (!isMusicStarted) {
-            bgMusic.play().catch(() => {});
-            isMusicStarted = true;
-        }
+    function startMusicOnce() { if(bgM.paused) bgM.play(); }
+
+    function showTab(id, el) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.remove('hidden');
+        el.classList.add('active');
     }
 
-    const allQuestions = [
-        {q: "ما هو لون السماء في النهار الصافي؟", a: ["أحمر", "أزرق", "أخضر"], c: 1, diff: 1}, // سهل جداً
-        {q: "كم عدد أصابع اليد الواحدة؟", a: ["4", "5", "6"], c: 1, diff: 1},
-        {q: "ما هو الكوكب الأحمر؟", a: ["المريخ", "زحل", "الأرض"], c: 0, diff: 2}, // متوسط
-        {q: "عاصمة فرنسا هي؟", a: ["لندن", "باريس", "مدريد"], c: 1, diff: 2},
-        {q: "ما هو أسرع كوكب يدور حول الشمس؟", a: ["عطارد", "المشتري", "الزهرة"], c: 0, diff: 3}, // متوسط صعب
-        {q: "من هو مكتشف الجاذبية؟", a: ["نيوتن", "أينشتاين", "ديزني"], c: 0, diff: 3}
+    const quizData = [
+        {q: "ما هو أصل اسم كوكب الأرض بالإنجليزية؟", a: ["جرماني", "لاتيني", "يوناني"], c: 0},
+        {q: "أي غاز هو الأكثر تواجداً في الغلاف الجوي؟", a: ["الأكسجين", "النيتروجين", "الهيدروجين"], c: 1},
+        {q: "كم عدد القلوب لدى الأخطبوط؟", a: ["1", "2", "3"], c: 2},
+        {q: "8 × 8 ÷ 4 = ?", a: ["16", "32", "64"], c: 0},
+        {q: "ما هو أصغر كوكب في مجموعتنا الشمسية؟", a: ["المريخ", "عطارد", "الزهرة"], c: 1},
+        {q: "أين تقع الكعبة المشرفة؟", a: ["المدينة المنورة", "مكة المكرمة", "الرياض"], c: 1}
     ];
 
-    let currentQuestions = [];
-    let score = 0, lives = 5, seconds = 0, qIndex = 0, clock, pName = "";
+    let sc = 0, lv = 5, tm = 0, qi = 0, intv, uName = "";
 
-    async function syncData() {
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: {'X-Master-Key': API_KEY} });
-            const data = await res.json();
-            const players = data.record.players || [];
-            updateUI(players);
-        } catch(e) {}
-    }
-
-    function updateUI(players) {
-        if(players.length > 0) document.getElementById('goat-name').innerText = players[0].name;
+    async function fetchData() {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: {'X-Master-Key': API_KEY} });
+        const d = await res.json();
+        const players = d.record.players || [];
+        if(players.length > 0) document.getElementById('top-goat-display').innerText = players[0].name;
+        
         let html = "";
         players.forEach((p, i) => {
-            const isGoat = i === 0 ? "top-player" : "";
-            const rankLabel = i === 0 ? "القوت الذهبي 👑" : p.rank;
-            html += `<div class="player-card ${isGoat}">
-                <div style="text-align:right"><b>${i+1}. ${p.name}</b><br><small style="color:var(--gold)">${rankLabel}</small></div>
-                <div style="text-align:left">🎯 ${p.score}/6 | ⏱️ ${p.time}s</div>
+            html += `<div class="player-card ${i===0?'top-goat-card':''}">
+                <div style="text-align:right"><b>${i+1}. ${p.name}</b><br><small style="color:var(--gold)">${i===0?'GOLDEN GOAT 👑':p.rank}</small></div>
+                <div>🎯 ${p.score}/6 | ⏱️ ${p.time}s</div>
             </div>`;
         });
-        document.getElementById('leaderboard-list').innerHTML = html;
+        document.getElementById('list-container').innerHTML = html;
     }
 
-    function startChallenge() {
-        pName = prompt("أدخل اسمك الحقيقي:");
-        if(!pName) return;
-        
-        // خلط الأسئلة عشوائياً في كل مرة
-        currentQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
-        
-        score = 0; lives = 5; seconds = 0; qIndex = 0;
-        document.getElementById('game-overlay').style.display = 'block';
-        clock = setInterval(() => { seconds++; document.getElementById('timer-display').innerText = seconds + "s"; }, 1000);
-        renderQuestion();
+    function launchGame() {
+        uName = prompt("اسمك الحقيقي لدخول التاريخ:");
+        if(!uName) return;
+        sc = 0; lv = 5; tm = 0; qi = 0;
+        document.getElementById('game-overlay').style.display = 'flex';
+        intv = setInterval(() => { tm++; document.getElementById('game-timer').innerText = tm + "s"; }, 1000);
+        showQ();
     }
 
-    function renderQuestion() {
-        if(qIndex >= 6 || lives <= 0) return finish();
-        const q = currentQuestions[qIndex];
-        document.getElementById('question-text').innerText = q.q;
-        const box = document.getElementById('options-container');
+    function showQ() {
+        if(qi >= 6 || lv <= 0) return end();
+        const q = quizData.sort(() => Math.random() - 0.5)[qi]; // خلط الأسئلة
+        document.getElementById('q-txt').innerText = q.q;
+        const box = document.getElementById('opts-container');
         box.innerHTML = "";
         q.a.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = "option-btn";
-            btn.innerText = opt;
-            btn.onclick = () => {
-                if(i === q.c) score++; else { lives--; document.getElementById('lives-display').innerText = "❤️".repeat(lives); }
-                qIndex++; renderQuestion();
-            };
-            box.appendChild(btn);
+            const b = document.createElement('button');
+            b.className = "option-btn"; b.innerText = opt;
+            b.onclick = () => { if(i === q.c) sc++; else { lv--; document.getElementById('game-hearts').innerText = "❤️".repeat(lv); } qi++; showQ(); };
+            box.appendChild(b);
         });
     }
 
-    async function finish() {
-        clearInterval(clock);
+    async function end() {
+        clearInterval(intv);
         document.getElementById('game-overlay').style.display = 'none';
-        if(lives > 0) { winSnd.play(); confetti(); } else { loseSnd.play(); }
-
-        const sortVal = (score * 1000) + (lives * 100) - seconds;
-        const player = { name: pName, score, time: seconds, lives, rank: "بطل", sortVal };
+        if(lv > 0) { document.getElementById('winSnd').play(); confetti(); } else { document.getElementById('loseSnd').play(); }
+        
+        const sortVal = (sc * 1000) + (lv * 100) - tm;
+        const pObj = { name: uName, score: sc, time: tm, lives: lv, rank: "محارب", sortVal };
 
         const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: {'X-Master-Key': API_KEY} });
-        const cloud = await res.json();
-        let list = cloud.record.players || [];
-        list.push(player);
+        const d = await res.json();
+        let list = d.record.players || [];
+        list.push(pObj);
         list.sort((a,b) => b.sortVal - a.sortVal);
         
         await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -147,10 +204,10 @@
             headers: {'Content-Type': 'application/json', 'X-Master-Key': API_KEY},
             body: JSON.stringify({ players: list.slice(0, 20) })
         });
-        syncData();
+        fetchData();
     }
 
-    window.onload = syncData;
+    window.onload = fetchData;
 </script>
 </body>
 </html>
