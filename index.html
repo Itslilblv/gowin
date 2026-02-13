@@ -1,263 +1,540 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gowin Pro - Arena Ultimate</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --gold: #ffd700;
-            --bg-dark: #080a0f;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 215, 0, 0.2);
-        }
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
 
-        body {
-            margin: 0; background-color: var(--bg-dark); color: white;
-            font-family: 'Cairo', sans-serif; overflow-x: hidden;
-            background: radial-gradient(circle at top, #16213e 0%, #080a0f 100%);
-            min-height: 100vh;
-        }
+interface Player {
+  id: string;
+  name: string;
+  score: number;
+  lives: number;
+  time: number;
+  language: 'ar' | 'en';
+}
 
-        /* اللوجو المتحرك */
-        .header-section { padding: 40px 20px 10px; text-align: center; }
-        .logo-glow {
-            font-size: 2.5rem; font-weight: 900; color: var(--gold);
-            letter-spacing: 6px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            animation: pulseGlow 3s infinite alternate;
-        }
-        @keyframes pulseGlow {
-            from { transform: scale(1); opacity: 0.8; text-shadow: 0 0 10px var(--gold); }
-            to { transform: scale(1.05); opacity: 1; text-shadow: 0 0 30px var(--gold); }
-        }
+interface Question {
+  id: number;
+  text: string;
+  options: string[];
+  correctAnswer: number;
+  emoji: string;
+}
 
-        /* بانر القوت الذهبي */
-        .goat-status {
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            color: black; padding: 8px; font-weight: 900; font-size: 1rem;
-            margin: 15px 0 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
+interface TournamentMatch {
+  player1: Player;
+  player2: Player;
+  winner?: Player;
+  stage: string;
+}
 
-        /* التبويبات (Arena Navigation) */
-        .arena-tabs {
-            display: flex; background: var(--glass); margin: 0 20px 20px;
-            border-radius: 15px; padding: 5px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .tab-trigger {
-            flex: 1; padding: 12px; border: none; background: none; color: #777;
-            font-weight: 700; cursor: pointer; transition: 0.3s; border-radius: 12px;
-        }
-        .tab-trigger.active { background: var(--gold); color: black; }
-
-        /* البطاقات الاحترافية */
-        .content-area { padding: 0 20px 100px; }
-        .arena-card {
-            background: var(--glass); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            margin-bottom: 12px; padding: 18px; border-radius: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            transition: 0.3s;
-        }
-        .arena-card.golden-goat {
-            border: 1px solid var(--gold);
-            background: rgba(255, 215, 0, 0.08);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-        }
-
-        .rank-badge {
-            width: 32px; height: 32px; background: rgba(255,255,255,0.05);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; color: var(--gold); margin-left: 15px;
-        }
-
-        /* زر البدء العائم */
-        .btn-play {
-            background: var(--gold); color: black; padding: 18px 40px;
-            border: none; border-radius: 15px; font-weight: 900; font-size: 1.2rem;
-            width: 100%; max-width: 400px; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(255,215,0,0.2); margin: 10px 0 30px;
-        }
-
-        /* واجهة التحدي */
-        #arena-game-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 9999; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .q-card {
-            width: 85%; max-width: 450px; background: var(--glass);
-            padding: 30px; border-radius: 25px; border: 1px solid var(--border);
-            text-align: center;
-        }
-        .opt-btn {
-            width: 100%; padding: 18px; margin: 10px 0;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2);
-            color: white; border-radius: 15px; cursor: pointer; font-size: 1.1rem;
-            font-weight: 700; transition: 0.2s;
-        }
-        .opt-btn:hover { background: var(--gold); color: black; }
-
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body onclick="handleFirstClick()">
-
-    <audio id="musicBg" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"></audio>
-    <audio id="sndWin" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-    <audio id="sndLose" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
-
-    <div class="header-section">
-        <div class="logo-glow">GOWIN PRO</div>
-    </div>
-
-    <div class="goat-status">🏆 THE GOLDEN GOAT: <span id="top-goat-name">جاري المزامنة...</span></div>
-
-    <div class="arena-tabs">
-        <button class="tab-trigger active" onclick="toggleTab('rank', this)">🏆 المتصدرون</button>
-        <button class="tab-trigger" onclick="toggleTab('how', this)">📖 الشروط</button>
-    </div>
-
-    <div class="content-area">
-        <div id="view-rank">
-            <button class="btn-play" onclick="startArena()">ابدأ التحدي الفوري ⚔️</button>
-            <div id="leaderboard-data"></div>
-        </div>
-
-        <div id="view-how" class="hidden" style="text-align: right; line-height: 1.8;">
-            <h3 style="color: var(--gold)">قوانين الساحة:</h3>
-            <p>• الإجابة الصحيحة تمنحك 1000 نقطة.</p>
-            <p>• كل قلب متبقي يمنحك 100 نقطة إضافية.</p>
-            <p>• يتم خصم ثانية واحدة من نقاطك لكل ثانية تأخير.</p>
-            <p>• "القوت الذهبي" هو صاحب أعلى رقم قياسي تاريخي.</p>
-        </div>
-    </div>
-
-    <div id="arena-game-overlay">
-        <div style="margin-bottom: 20px; text-align: center;">
-            <div id="lives-counter" style="font-size: 2rem; letter-spacing: 5px;">❤️❤️❤️❤️❤️</div>
-            <div id="time-counter" style="font-size: 4rem; font-weight: 900; color: var(--gold);">0s</div>
-        </div>
-        <div class="q-card">
-            <h2 id="q-text" style="margin-bottom: 25px;"></h2>
-            <div id="options-box"></div>
-        </div>
-    </div>
-
-<script>
-    // بيانات الربط (Bin ID & Key)
-    const B_ID = '698ec55bd0ea881f40b6b5e3';
-    const B_KEY = '$2a$10$zP2nglkzKrG1K81/D3uY1ejRP73C/zxIpE9QiFtYPOS2pU9saHnU.';
-
-    const audios = {
-        bg: document.getElementById('musicBg'),
-        win: document.getElementById('sndWin'),
-        lose: document.getElementById('sndLose')
+const App: React.FC = () => {
+  // الحالات الأساسية
+  const [playerName, setPlayerName] = useState<string>('');
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  const [score, setScore] = useState<number>(0);
+  const [lives, setLives] = useState<number>(5);
+  const [time, setTime] = useState<number>(0);
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar');
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [tournamentStarted, setTournamentStarted] = useState<boolean>(false);
+  const [tournamentMatches, setTournamentMatches] = useState<TournamentMatch[]>([]);
+  
+  // الموسيقى
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
+  
+  // الأسئلة بالعربية
+  const questionsAr: Question[] = [
+    { id: 1, text: "ما هي عاصمة السعودية؟", options: ["الرياض", "جدة", "الدمام", "مكة"], correctAnswer: 0, emoji: "🇸🇦" },
+    { id: 2, text: "كم عدد أيام الأسبوع؟", options: ["5", "6", "7", "8"], correctAnswer: 2, emoji: "📅" },
+    { id: 3, text: "ما هي عاصمة مصر؟", options: ["القاهرة", "الإسكندرية", "الجيزة", "الأقصر"], correctAnswer: 0, emoji: "🇪🇬" },
+    { id: 4, text: "ما هو ناتج 5 × 8؟", options: ["35", "40", "45", "50"], correctAnswer: 1, emoji: "🧮" },
+    { id: 5, text: "ما هي أكبر قارة في العالم؟", options: ["أفريقيا", "أوروبا", "آسيا", "أمريكا الشمالية"], correctAnswer: 2, emoji: "🌍" },
+    { id: 6, text: "ما هو العنصر الأكثر وفرة في الغلاف الجوي؟", options: ["الأكسجين", "الهيدروجين", "النيتروجين", "ثاني أكسيد الكربون"], correctAnswer: 2, emoji: "🌬️" },
+  ];
+  
+  // الأسئلة بالإنجليزية
+  const questionsEn: Question[] = [
+    { id: 1, text: "What is the capital of Saudi Arabia?", options: ["Riyadh", "Jeddah", "Dammam", "Mecca"], correctAnswer: 0, emoji: "🇸🇦" },
+    { id: 2, text: "How many days in a week?", options: ["5", "6", "7", "8"], correctAnswer: 2, emoji: "📅" },
+    { id: 3, text: "What is the capital of Egypt?", options: ["Cairo", "Alexandria", "Giza", "Luxor"], correctAnswer: 0, emoji: "🇪🇬" },
+    { id: 4, text: "What is 5 × 8?", options: ["35", "40", "45", "50"], correctAnswer: 1, emoji: "🧮" },
+    { id: 5, text: "What is the largest continent?", options: ["Africa", "Europe", "Asia", "North America"], correctAnswer: 2, emoji: "🌍" },
+    { id: 6, text: "What is the most abundant element in the atmosphere?", options: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon Dioxide"], correctAnswer: 2, emoji: "🌬️" },
+  ];
+  
+  const questions = language === 'ar' ? questionsAr : questionsEn;
+  
+  // تهيئة الموسيقى
+  useEffect(() => {
+    audioRef.current = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_8a5a1e3c4a.mp3');
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.35;
+    
+    const handleFirstInteraction = () => {
+      if (audioRef.current && !musicPlaying) {
+        audioRef.current.play().catch(e => console.log("Music play failed:", e));
+        setMusicPlaying(true);
+      }
     };
-    Object.values(audios).forEach(a => a.volume = 0.35);
-
-    function handleFirstClick() { if(audios.bg.paused) audios.bg.play().catch(()=>{}); }
-
-    function toggleTab(view, btn) {
-        document.getElementById('view-rank').classList.add('hidden');
-        document.getElementById('view-how').classList.add('hidden');
-        document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-        document.getElementById('view-'+view).classList.remove('hidden');
-        btn.classList.add('active');
+    
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('click', handleFirstInteraction);
+    };
+  }, [musicPlaying]);
+  
+  // العداد الزمني
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (gameStarted && !gameFinished) {
+      interval = setInterval(() => {
+        setTime(prev => prev + 1);
+      }, 1000);
     }
-
-    const arenaQuestions = [
-        {q: "ما هو أسرع كائن حي في العالم؟", a: ["الفهد", "النعامة", "الصقر الجوال"], c: 2},
-        {q: "كم قلب يمتلك الأخطبوط؟", a: ["قلب واحد", "ثلاثة قلوب", "خمسة قلوب"], c: 1},
-        {q: "ما هو المعدن السائل الوحيد؟", a: ["النحاس", "الزئبق", "القصدير"], c: 1},
-        {q: "أين تقع أكبر صحراء في العالم؟", a: ["الصحراء الكبرى", "أنتاركتيكا", "صحراء الربع الخالي"], c: 1},
-        {q: "ما هو رمز الماء الكيميائي؟", a: ["CO2", "H2O", "O2"], c: 1},
-        {q: "كم عدد القارات في العالم؟", a: ["6", "7", "5"], c: 1}
-    ];
-
-    let score=0, hearts=5, clock=0, qIdx=0, timerRef, userName="";
-
-    async function loadLeaderboard() {
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest`, {headers: {'X-Master-Key': B_KEY}});
-            const data = await res.json();
-            const players = data.record.players || [];
-            if(players.length > 0) document.getElementById('top-goat-name').innerText = players[0].name;
+    return () => clearInterval(interval);
+  }, [gameStarted, gameFinished]);
+  
+  // إضافة لاعب إلى المتصدرين
+  const addPlayerToLeaderboard = () => {
+    const newPlayer: Player = {
+      id: Date.now().toString(),
+      name: playerName || 'Anonymous',
+      score,
+      lives,
+      time,
+      language
+    };
+    
+    const updatedPlayers = [...players, newPlayer]
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (a.lives !== b.lives) return b.lives - a.lives;
+        return a.time - b.time;
+      })
+      .slice(0, 20); // أفضل 20 لاعب فقط
+    
+    setPlayers(updatedPlayers);
+    localStorage.setItem('gowin_players', JSON.stringify(updatedPlayers));
+  };
+  
+  // بدء اللعبة
+  const startGame = () => {
+    if (!playerName.trim()) {
+      alert(language === 'ar' ? 'الرجاء إدخال اسمك!' : 'Please enter your name!');
+      return;
+    }
+    
+    setGameStarted(true);
+    setScore(0);
+    setLives(5);
+    setTime(0);
+    setCurrentQuestion(0);
+    setGameFinished(false);
+    
+    // تشغيل الموسيقى إذا لم تكن تعمل
+    if (audioRef.current && !musicPlaying) {
+      audioRef.current.play().catch(e => console.log("Music play failed:", e));
+      setMusicPlaying(true);
+    }
+  };
+  
+  // التعامل مع الإجابة
+  const handleAnswer = (answerIndex: number) => {
+    if (gameFinished) return;
+    
+    const question = questions[currentQuestion];
+    const isCorrect = answerIndex === question.correctAnswer;
+    
+    if (isCorrect) {
+      setScore(prev => prev + 100);
+      // اهتزاز عند الإجابة الصحيحة
+      if (navigator.vibrate) navigator.vibrate(50);
+    } else {
+      setLives(prev => prev - 1);
+      // اهتزاز عند الإجابة الخاطئة
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      
+      if (lives - 1 <= 0) {
+        finishGame();
+        return;
+      }
+    }
+    
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+    } else {
+      finishGame();
+    }
+  };
+  
+  // إنهاء اللعبة
+  const finishGame = () => {
+    setGameFinished(true);
+    addPlayerToLeaderboard();
+  };
+  
+  // بدء الدوري
+  const startTournament = () => {
+    if (players.length < 20) {
+      alert(language === 'ar' 
+        ? 'يحتاج الدوري إلى 20 لاعب على الأقل!' 
+        : 'Tournament needs at least 20 players!');
+      return;
+    }
+    
+    const tournamentPlayers = players.slice(0, 20);
+    const matches: TournamentMatch[] = [];
+    
+    // دور المجموعات: 4 مجموعات × 5 لاعبين
+    const groups = ['A', 'B', 'C', 'D'];
+    groups.forEach(group => {
+      const groupPlayers = tournamentPlayers.slice(0, 5);
+      tournamentPlayers.splice(0, 5);
+      
+      // كل لاعب يواجه كل لاعب في المجموعة
+      for (let i = 0; i < groupPlayers.length; i++) {
+        for (let j = i + 1; j < groupPlayers.length; j++) {
+          matches.push({
+            player1: groupPlayers[i],
+            player2: groupPlayers[j],
+            stage: `Group ${group}`
+          });
+        }
+      }
+    });
+    
+    setTournamentMatches(matches);
+    setTournamentStarted(true);
+  };
+  
+  // إعادة اللعبة
+  const restartGame = () => {
+    setGameStarted(false);
+    setGameFinished(false);
+    setCurrentQuestion(0);
+    setScore(0);
+    setLives(5);
+    setTime(0);
+  };
+  
+  // تحميل اللاعبين من localStorage
+  useEffect(() => {
+    const savedPlayers = localStorage.getItem('gowin_players');
+    if (savedPlayers) {
+      setPlayers(JSON.parse(savedPlayers));
+    }
+  }, []);
+  
+  // الحصول على اللقب بناءً على الترتيب
+  const getTitle = (index: number): string => {
+    if (index === 0) return '👑 أسطورة';
+    if (index === 1) return '🧠 عبقري';
+    if (index === 2) return '🐺 ذيب';
+    if (index < 5) return '⭐ محترف';
+    if (index < 8) return '🎯 متقدم';
+    return '🔥 مبتدئ';
+  };
+  
+  // تنسيق الوقت
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-800 to-cyan-700 text-white p-4">
+      {/* شريط العنوان */}
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse">
+            🏆 دوري أبطال Gowin 🏆
+          </h1>
+          
+          <button
+            onClick={() => setLanguage(lang => lang === 'ar' ? 'en' : 'ar')}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:scale-105 transition-transform"
+          >
+            {language === 'ar' ? 'EN 🌍' : 'AR 🇸🇦'}
+          </button>
+        </div>
+        
+        {/* شاشة إدخال الاسم */}
+        {!gameStarted && !gameFinished && (
+          <div className="text-center bg-black/30 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto">
+            <h2 className="text-3xl font-bold mb-6">
+              {language === 'ar' ? '🚀 ابدأ رحلتك نحو المجد!' : '🚀 Start Your Journey to Glory!'}
+            </h2>
             
-            let listHtml = "";
-            players.forEach((p, i) => {
-                const isTop = i === 0 ? 'golden-goat' : '';
-                listHtml += `
-                <div class="arena-card ${isTop}">
-                    <div style="display:flex; align-items:center;">
-                        <div class="rank-badge">${i+1}</div>
-                        <div style="text-align:right">
-                            <b style="font-size:1.1rem">${p.name}</b><br>
-                            <small style="color:var(--gold)">${i===0 ? 'GOLDEN GOAT 👑' : 'ARENA ELITE'}</small>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder={language === 'ar' ? 'أدخل اسمك هنا...' : 'Enter your name here...'}
+              className="w-full p-4 mb-6 bg-white/10 border-2 border-cyan-400 rounded-xl text-xl text-center focus:outline-none focus:border-yellow-400"
+              onKeyPress={(e) => e.key === 'Enter' && startGame()}
+            />
+            
+            <button
+              onClick={startGame}
+              className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-2xl font-bold rounded-xl hover:scale-105 transition-transform shadow-lg shadow-emerald-500/30"
+            >
+              {language === 'ar' ? '🚀 ابدأ التحدي!' : '🚀 Start Challenge!'}
+            </button>
+            
+            <p className="mt-6 text-gray-300">
+              {language === 'ar' 
+                ? 'أدخل اسمك وابدأ رحلتك نحو لقب THE GOAT!'
+                : 'Enter your name and start your journey to THE GOAT title!'}
+            </p>
+          </div>
+        )}
+        
+        {/* شاشة اللعبة */}
+        {gameStarted && !gameFinished && (
+          <div className="max-w-4xl mx-auto">
+            {/* معلومات اللاعب */}
+            <div className="flex justify-between items-center mb-8 bg-black/20 p-4 rounded-xl">
+              <div className="text-2xl font-bold">
+                👤 {playerName}
+              </div>
+              
+              <div className="flex gap-6">
+                <div className="text-center">
+                  <div className="text-lg">🏆 النقاط</div>
+                  <div className="text-2xl font-bold">{score}</div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-lg">❤️ الحيوات</div>
+                  <div className="text-2xl font-bold text-red-400">{'❤️'.repeat(lives)}</div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-lg">⏱️ الوقت</div>
+                  <div className="text-2xl font-bold">{formatTime(time)}</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* السؤال الحالي */}
+            <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-8 mb-8">
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-6xl">{questions[currentQuestion].emoji}</span>
+                <h2 className="text-3xl font-bold flex-1">
+                  {questions[currentQuestion].text}
+                </h2>
+              </div>
+              
+              {/* خيارات الإجابة */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {questions[currentQuestion].options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(index)}
+                    className="p-6 text-xl bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl hover:scale-105 transition-transform active:scale-95 text-left"
+                  >
+                    {String.fromCharCode(65 + index)}. {option}
+                  </button>
+                ))}
+              </div>
+              
+              {/* تقدم الأسئلة */}
+              <div className="mt-8">
+                <div className="flex justify-between mb-2">
+                  <span>{language === 'ar' ? 'تقدم الأسئلة' : 'Question Progress'}</span>
+                  <span>{currentQuestion + 1} / {questions.length}</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-cyan-500 to-green-500 transition-all duration-300"
+                    style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* شاشة النهاية */}
+        {gameFinished && (
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-yellow-600/30 to-orange-600/30 backdrop-blur-lg rounded-2xl p-8 mb-8">
+              <h2 className="text-4xl font-bold mb-4">
+                {language === 'ar' ? '🎉 تم إدخالك في الدوري!' : '🎉 You have been entered into the league!'}
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-black/20 p-6 rounded-xl">
+                  <div className="text-2xl mb-2">🎯 النقاط</div>
+                  <div className="text-4xl font-bold text-yellow-400">{score}</div>
+                </div>
+                
+                <div className="bg-black/20 p-6 rounded-xl">
+                  <div className="text-2xl mb-2">❤️ الحيوات المتبقية</div>
+                  <div className="text-4xl font-bold text-red-400">{lives}</div>
+                </div>
+                
+                <div className="bg-black/20 p-6 rounded-xl">
+                  <div className="text-2xl mb-2">⏱️ الوقت المستغرق</div>
+                  <div className="text-4xl font-bold text-cyan-400">{formatTime(time)}</div>
+                </div>
+              </div>
+              
+              <p className="text-xl text-gray-300 mb-8">
+                {language === 'ar' 
+                  ? 'شكراً لمشاركتك! انتظر الدوري وشاهد موقعك بين الأبطال'
+                  : 'Thank you for participating! Wait for the league and see your position among champions'}
+              </p>
+              
+              <button
+                onClick={restartGame}
+                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-2xl font-bold rounded-xl hover:scale-105 transition-transform"
+              >
+                {language === 'ar' ? '🔄 العب مرة أخرى' : '🔄 Play Again'}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* لوحة المتصدرين */}
+        <div className="mt-12 bg-black/20 backdrop-blur-lg rounded-2xl p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">
+              {language === 'ar' ? '🏆 لوحة المتصدرين' : '🏆 Leaderboard'}
+            </h2>
+            
+            <button
+              onClick={startTournament}
+              disabled={players.length < 20}
+              className={`px-6 py-3 rounded-xl font-bold text-lg ${players.length >= 20 
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105' 
+                : 'bg-gray-700 cursor-not-allowed'}`}
+            >
+              {language === 'ar' ? '🏆 ابدأ الدوري' : '🏆 Start League'}
+            </button>
+          </div>
+          
+          <div className="mb-4 text-lg">
+            {language === 'ar' 
+              ? `اللاعبون المسجلون: ${players.length} / 20`
+              : `Registered Players: ${players.length} / 20`}
+          </div>
+          
+          {players.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              {language === 'ar' 
+                ? 'لا يوجد لاعبون بعد. كن الأول!' 
+                : 'No players yet. Be the first!'}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="py-3 text-left">#</th>
+                    <th className="py-3 text-left">{language === 'ar' ? 'اللاعب' : 'Player'}</th>
+                    <th className="py-3 text-left">{language === 'ar' ? 'اللقب' : 'Title'}</th>
+                    <th className="py-3 text-left">🏆</th>
+                    <th className="py-3 text-left">❤️</th>
+                    <th className="py-3 text-left">⏱️</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {players.slice(0, 20).map((player, index) => (
+                    <tr 
+                      key={player.id} 
+                      className={`border-b border-gray-800 hover:bg-white/5 ${index < 3 ? 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10' : ''}`}
+                    >
+                      <td className="py-4">
+                        <div className={`w-8 h-8 flex items-center justify-center rounded-full ${index < 3 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gray-700'}`}>
+                          {index + 1}
                         </div>
-                    </div>
-                    <div style="text-align:left">
-                        <span style="font-weight:900">${p.score}/6</span><br>
-                        <small style="color:#666">${p.time}s</small>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('leaderboard-data').innerHTML = listHtml;
-        } catch(e) { console.log("Error loading"); }
-    }
+                      </td>
+                      <td className="py-4">
+                        <div className="font-bold text-lg">{player.name}</div>
+                        <div className="text-sm text-gray-400">{player.language === 'ar' ? '🇸🇦' : '🇺🇸'}</div>
+                      </td>
+                      <td className="py-4">
+                        <span className={`px-3 py-1 rounded-full text-sm ${index === 0 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gray-700'}`}>
+                          {getTitle(index)}
+                        </span>
+                      </td>
+                      <td className="py-4 text-xl font-bold">{player.score}</td>
+                      <td className="py-4 text-xl text-red-400">{'❤️'.repeat(player.lives)}</td>
+                      <td className="py-4 text-xl">{formatTime(player.time)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        
+        {/* الدوري */}
+        {tournamentStarted && (
+          <div className="mt-8 bg-black/20 backdrop-blur-lg rounded-2xl p-6">
+            <h2 className="text-3xl font-bold mb-6">
+              {language === 'ar' ? '⚔️ دوري أبطال Gowin' : '⚔️ Gowin Champions League'}
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              {['A', 'B', 'C', 'D'].map(group => (
+                <div key={group} className="bg-black/30 p-4 rounded-xl">
+                  <h3 className="text-xl font-bold mb-3 text-center">المجموعة {group}</h3>
+                  <div className="space-y-2">
+                    {players.slice(0, 5).map((player, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2 bg-white/5 rounded">
+                        <span>{player.name}</span>
+                        <span className="text-yellow-400">{player.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="text-center">
+              <div className="text-2xl font-bold text-yellow-400 mb-4">
+                {language === 'ar' 
+                  ? '🏆 الفائز يحصل على لقب THE GOAT!'
+                  : '🏆 Winner gets THE GOAT title!'}
+              </div>
+              <p className="text-gray-300">
+                {language === 'ar'
+                  ? 'أفضل 2 من كل مجموعة يتأهلون إلى مرحلة خروج المغلوب'
+                  : 'Top 2 from each group qualify to knockout stage'}
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Footer */}
+        <footer className="mt-12 text-center text-gray-400 border-t border-gray-800 pt-6">
+          <p className="mb-2">
+            {language === 'ar' ? 'تابعنا على' : 'Follow us'} 
+            <a 
+              href="https://instagram.com/_itlulp" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:text-cyan-300 ml-2"
+            >
+              @_itlulp
+            </a>
+          </p>
+          <p>© 2024 Gowin - {language === 'ar' ? 'ساحة الأبطال' : 'Champions Arena'}</p>
+        </footer>
+      </div>
+    </div>
+  );
+};
 
-    function startArena() {
-        userName = prompt("أدخل اسم المحارب:");
-        if(!userName) return;
-        score=0; hearts=5; clock=0; qIdx=0;
-        document.getElementById('arena-game-overlay').style.display = 'flex';
-        timerRef = setInterval(() => { clock++; document.getElementById('time-counter').innerText = clock + "s"; }, 1000);
-        showQuestion();
-    }
-
-    function showQuestion() {
-        if(qIdx >= 6 || hearts <= 0) return endArena();
-        const q = arenaQuestions.sort(() => Math.random() - 0.5)[qIdx];
-        document.getElementById('q-text').innerText = q.q;
-        const box = document.getElementById('options-box');
-        box.innerHTML = "";
-        q.a.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = "opt-btn";
-            btn.innerText = opt;
-            btn.onclick = () => {
-                if(i === q.c) score++; else { hearts--; document.getElementById('lives-counter').innerText = "❤️".repeat(hearts); }
-                qIdx++; showQuestion();
-            };
-            box.appendChild(btn);
-        });
-    }
-
-    async function endArena() {
-        clearInterval(timerRef);
-        document.getElementById('arena-game-overlay').style.display = 'none';
-        if(hearts > 0) { audios.win.play(); confetti(); } else { audios.lose.play(); }
-
-        const sortPower = (score * 1000) + (hearts * 100) - clock;
-        const result = { name: userName, score, time: clock, hearts, sortVal: sortPower };
-
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest`, {headers: {'X-Master-Key': B_KEY}});
-            const d = await res.json();
-            let players = d.record.players || [];
-            players.push(result);
-            players.sort((a,b) => b.sortVal - a.sortVal);
-            await fetch(`https://api.jsonbin.io/v3/b/${B_ID}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json', 'X-Master-Key': B_KEY},
-                body: JSON.stringify({ players: players.slice(0, 20) })
-            });
-            loadLeaderboard();
-        } catch(e) {}
-    }
-
-    window.onload = loadLeaderboard;
-</script>
-</body>
-</html>
+export default App;
