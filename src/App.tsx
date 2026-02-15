@@ -509,9 +509,9 @@ function App() {
       }
     }
   };
-
   const tr = t[language];
-
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
       {/* Animated background */}
