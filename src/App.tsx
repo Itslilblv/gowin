@@ -510,7 +510,6 @@ function App() {
     }
   };
     const tr = t[language];
-
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
 
