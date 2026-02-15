@@ -502,11 +502,11 @@ function App() {
         eliminated: "Eliminated",
         rounds: "Rounds"
       },
-      motivation: {
-        start: "🚀 Start your journey to excellence - only 20 players will qualify!",
-        league: "⚡ The battle begins now - only 8 will qualify!",
-        leaderboard: "📊 Rankings change every second - keep your position!"
-      }
+              motivation: {
+          start: "🌙 استعد لتحدي المربع الذهبي في ليالي رمضان",
+          league: "🏆 أقوى دوري رمضاني - 4 مراكز فقط للتتويج",
+          leaderboard: "📊 الترتيب يتغير لحظياً.. نافس على القمة"
+        }
     }
   };
 
