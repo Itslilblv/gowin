@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
 // Questions data with multiple sets
+const [showRewardModal, setShowRewardModal] = useState(false);
+const [isWinner, setIsWinner] = useState(false);
 const questionsSets = {
   set1: {
     arabic: [
@@ -514,6 +516,20 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
+      {/* بنر التحفيز العلوي */}
+<div style={{
+  background: 'linear-gradient(90deg, #fbbf24, #d97706)',
+  color: '#000',
+  textAlign: 'center',
+  padding: '12px',
+  fontWeight: '900',
+  fontSize: '1rem',
+  zIndex: 100,
+  position: 'relative',
+  fontFamily: 'Cairo, sans-serif'
+}}>
+  🐐 دوري Gowin.. هنا الكل فايز! العب واستلم كود خصمك فوراً 🏆
+</div>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/20 animate-pulse"></div>
@@ -951,7 +967,21 @@ function App() {
             </div>
           </div>
         )}
-
+<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '20px', alignItems: 'center' }}>
+  <button 
+    onClick={() => { setIsWinner(true); setShowRewardModal(true); }}
+    style={{ background: '#fbbf24', color: '#000', padding: '15px', borderRadius: '12px', fontWeight: 'bold', width: '100%', maxWidth: '300px' }}
+  >
+    أنا بطل الدوري (استلام الجائزة) 👑
+  </button>
+  <button 
+    onClick={() => { setIsWinner(false); setShowRewardModal(true); }}
+    style={{ background: '#374151', color: '#fff', padding: '15px', borderRadius: '12px', fontWeight: 'bold', width: '100%', maxWidth: '300px' }}
+  >
+    استلام جائزة الترضية (للجميع) 🤝
+  </button>
+</div>
+    
         {/* Challenge Tab */}
         {activeTab === 'challenge' && gameStarted && (
           <div className="max-w-2xl mx-auto">
@@ -1151,6 +1181,46 @@ function App() {
           <span className="font-bold">@_itlulp</span>
         </a>
       </footer>
+   {/* نافذة التوجيه للإنستقرام - تظهر عند نهاية الدوري */}
+{showRewardModal && (
+  <div style={{
+    position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.95)',
+    zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center',
+    fontFamily: 'Cairo, sans-serif', padding: '20px'
+  }}>
+    <div style={{
+      backgroundColor: isWinner ? '#1a1a1a' : '#ffffff',
+      padding: '40px 30px', borderRadius: '30px', textAlign: 'center',
+      border: isWinner ? '4px solid #fbbf24' : '4px solid #6b7280',
+      maxWidth: '380px', width: '100%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h2 style={{ color: isWinner ? '#fbbf24' : '#1f2937', fontSize: '1.8rem', fontWeight: '900', marginBottom: '15px' }}>
+        {isWinner ? 'ألف مبروك يا أسطورة! 👑' : 'حظ أوفر يا وحش! 🤝'}
+      </h2>
+      <p style={{ color: isWinner ? '#e5e7eb' : '#4b5563', fontSize: '1.1rem', marginBottom: '25px', lineHeight: '1.6' }}>
+        {isWinner 
+          ? 'أثبتّ إنك بطل الدوري! صور الشاشة الحين وتعال استلم جائزتك الكبرى في الخاص.' 
+          : 'في Gowin الكل فايز.. صور الشاشة وتعال خذ كود خصمك البسيط في الخاص!'}
+      </p>
+      
+      {/* رابط الإنستقرام الخاص بك */}
+      <a href="https://instagram.com/رابط_حسابك_هنا" target="_blank" rel="noopener noreferrer" style={{
+        display: 'block', padding: '18px', borderRadius: '15px',
+        background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+        color: '#fff', fontWeight: 'bold', textDecoration: 'none', fontSize: '1.2rem'
+      }}>
+        ارسل الصورة على الإنستقرام
+      </a>
+
+      <button onClick={() => setShowRewardModal(false)} style={{
+        marginTop: '20px', background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '0.9rem'
+      }}>
+        إغلاق والعودة للرئيسية
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
