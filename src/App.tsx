@@ -415,8 +415,8 @@ function App() {
   // Translations
   const t = {
     ar: {
-      welcome: "مرحباً بك في Gowin",
-      subtitle: "الدوري الأقوى - 20 لاعب يتنافسون على Golden Goat",
+      Welcome: "🌙 أهلاً بك في دوري رمضان الذهبي",
+      subtitle: "🏆 التحدي الأقوى - نافس أفضل 20 لاعب على المربع الذهبي",
       startChallenge: "🚀 ابدأ التحدي",
       joinPlayers: "عدد اللاعبين المنتظرين",
       playersJoined: "لاعباً",
@@ -502,11 +502,12 @@ function App() {
         eliminated: "Eliminated",
         rounds: "Rounds"
       },
-              motivation: {
+                      motivation: {
           start: "🌙 استعد لتحدي المربع الذهبي في ليالي رمضان",
-          league: "🏆 أقوى دوري رمضاني - 4 مراكز فقط للتتويج",
-          leaderboard: "📊 الترتيب يتغير لحظياً.. نافس على القمة"
+          league: "🏆 أقوى دوري رمضاني - 4 أبطال فقط للتتويج",
+          leaderboard: "📊 الترتيب يتغير لحظياً.. نافس على الصدارة"
         }
+
     }
   };
 
@@ -587,7 +588,7 @@ function App() {
             {/* Logo */}
             <div className="text-center py-8">
               <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-clip-text text-transparent animate-pulse mb-4">
-                ⚔️ GOWIN ⚔️
+                🏮 GOWIN 🌙
               </h1>
               <p className="text-2xl text-white/80 font-bold">{tr.welcome}</p>
               <p className="text-lg text-purple-300 mt-2">{tr.subtitle}</p>
