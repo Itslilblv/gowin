@@ -514,6 +514,20 @@ function App() {
   const [isWinner, setIsWinner] = useState(false);
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
+          {/* بنر التحفيز العلوي */}
+      <div style={{
+        background: 'linear-gradient(90deg, #fbbf24, #d97706)',
+        color: '#000',
+        textAlign: 'center',
+        padding: '12px',
+        fontWeight: '900',
+        fontSize: '1rem',
+        zIndex: 100,
+        position: 'relative',
+        fontFamily: 'Cairo, sans-serif'
+      }}>
+        🏆 دوري Gowin.. هنا الكل فايز! العب واستلم كود خصمك فوراً 🎫
+      </div>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/20 animate-pulse"></div>
