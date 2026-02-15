@@ -509,23 +509,24 @@ function App() {
       }
     }
   };
-    const tr = t[language];
+  const tr = t[language];
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
-
-  useEffect(() => {
+    useEffect(() => {
+    // إذا انتهت اللعبة (Game Over) وظهرت النتائج
     if (gameOver) {
+      // إذا كان من ضمن الثلاثة الأوائل (المثلث الذهبي)
       if (ranking <= 3) {
         setIsWinner(true);
       } else {
+        // إذا كان خاسراً أو في ترتيب متأخر
         setIsWinner(false);
       }
+      // افتح النافذة تلقائياً بعد ثانيتين من ظهور النتيجة
       setTimeout(() => setShowRewardModal(true), 2000);
     }
   }, [gameOver, ranking]);
-
   return (
-
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
           {/* بنر التحفيز العلوي */}
       <div style={{
@@ -1206,23 +1207,22 @@ function App() {
           color: isWinner ? '#000' : '#fff',
           width: '100%', padding: '15px', borderRadius: '12px',
           fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px', cursor: 'pointer'
-                >
+        }}
+      >
         إرسال الصورة للإنستقرام 📸
       </button>
-
+      
       <button 
         onClick={() => setShowRewardModal(false)}
-        style={{ color: isWinner ? '#aaa' : '#666', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer', marginTop: '10px' }}
+        style={{ color: isWinner ? '#aaa' : '#666', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer' }}
       >
         إغلاق
       </button>
     </div>
   </div>
 )}
-          </div>
-        </footer>
-      </div>
-    );
+    </div>
+  );
 }
 
 export default App;
