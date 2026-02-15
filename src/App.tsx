@@ -513,25 +513,24 @@ function App() {
   const tr = t[language];
 
   return (
-        <div className="min-h-screen bg-[#1a0b2e] relative overflow-hidden text-white font-sans">
-      
-      {/* الزخارف الرمضانية الخلفية */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none" 
-           style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/islamic-art.png')` }}>
-      </div>
+        <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
+  
+  {/* 1. تدرج السماء الليلية الواقعي */}
+  <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
 
-      {/* تأثير الإضاءة الليلية (قمر ونجوم) */}
-      <div className="absolute top-10 right-10 text-6xl opacity-20 blur-sm pointer-events-none">🌙</div>
-      <div className="absolute top-24 left-10 text-4xl opacity-10 blur-sm pointer-events-none">✨</div>
+  {/* 2. طبقة النجوم المتناثرة (باستخدام كود CSS خفيف) */}
+  <div className="absolute inset-0 z-0 opacity-30 pointer-events-none" 
+       style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/stardust.png')` }}>
+  </div>
 
-      {/* البانر الذهبي العلوي */}
-      <div className="fixed top-0 left-0 right-0 z-[60] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 shadow-[0_2px_15px_rgba(234,179,8,0.4)] flex items-center border-b border-yellow-300/30">
-        <div className="whitespace-nowrap animate-marquee flex items-center text-black font-black text-[10px] sm:text-xs uppercase tracking-wider">
-          <span className="mx-8">🎁 مفاجأة الدوري: المربع الذهبي يحصل على أكواد خصم حصرية 🎁</span>
-          <span className="mx-8">🏆 حقق المركز 1 أو 2 أو 3 أو 4 واستلم كودك فوراً 🏆</span>
-          <span className="mx-8">🔥 أثبت مهارتك الآن 🔥</span>
-        </div>
-      </div>
+  {/* 3. الزخارف الإسلامية الشفافة في الأركان */}
+  <div className="absolute inset-0 z-0 opacity-5 pointer-events-none"
+       style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/islamic-art.png')` }}>
+  </div>
+
+  {/* 4. الهلال المتوهج (بإضافة تأثير Pulse للحركة) */}
+  <div className="absolute top-20 right-10 text-6xl opacity-20 blur-[1px] pointer-events-none animate-pulse">🌙</div>
+  <div className="absolute top-40 left-12 text-2xl opacity-10 pointer-events-none animate-bounce">✨</div>
 
       {/* Header */}
       <header className="relative z-50 pt-12 flex justify-between items-center p-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
