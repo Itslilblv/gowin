@@ -544,9 +544,9 @@ function App() {
           {language === 'ar' ? 'EN' : 'ع'}
         </button>
         
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-clip-text text-transparent animate-pulse">
-          ⚔️ GOWIN ⚔️
-        </h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 via-yellow-200 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] flex items-center gap-2">
+  🏮 GOWIN 🏮
+</h1>
         
         <div className="w-8"></div>
       </header>
