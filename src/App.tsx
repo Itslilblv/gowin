@@ -509,39 +509,11 @@ function App() {
       }
     }
   };
+
   const tr = t[language];
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [isWinner, setIsWinner] = useState(false);
-    useEffect(() => {
-    // إذا انتهت اللعبة (Game Over) وظهرت النتائج
-    if (gameOver) {
-      // إذا كان من ضمن الثلاثة الأوائل (المثلث الذهبي)
-      if (ranking <= 3) {
-        setIsWinner(true);
-      } else {
-        // إذا كان خاسراً أو في ترتيب متأخر
-        setIsWinner(false);
-      }
-      // افتح النافذة تلقائياً بعد ثانيتين من ظهور النتيجة
-      setTimeout(() => setShowRewardModal(true), 2000);
-    }
-  }, [gameOver, ranking]);
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
-          {/* بنر التحفيز العلوي */}
-      <div style={{
-        background: 'linear-gradient(90deg, #fbbf24, #d97706)',
-        color: '#000',
-        textAlign: 'center',
-        padding: '12px',
-        fontWeight: '900',
-        fontSize: '1rem',
-        zIndex: 100,
-        position: 'relative',
-        fontFamily: 'Cairo, sans-serif'
-      }}>
-        🏆 دوري Gowin.. هنا الكل فايز! العب واستلم كود خصمك فوراً 🎫
-      </div>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/20 animate-pulse"></div>
@@ -1179,48 +1151,6 @@ function App() {
           <span className="font-bold">@_itlulp</span>
         </a>
       </footer>
-      {showRewardModal && (
-  <div style={{
-    position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px'
-  }}>
-    <div style={{
-      background: isWinner ? 'linear-gradient(135deg, #1a1a1a, #2d2d2d)' : '#fff',
-      color: isWinner ? '#fbbf24' : '#000',
-      padding: '30px', borderRadius: '24px', maxWidth: '400px', width: '100%',
-      textAlign: 'center', border: isWinner ? '3px solid #fbbf24' : '3px solid #374151',
-      boxShadow: '0 20px 50px rgba(0,0,0,0.5)', fontFamily: 'Cairo, sans-serif'
-    }}>
-      <h2 style={{ fontSize: '1.8rem', fontWeight: '900', marginBottom: '15px' }}>
-        {isWinner ? '🏆 بطل المثلث الذهبي!' : '🤝 حظ أوفر يا وحش!'}
-      </h2>
-      <p style={{ fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.6' }}>
-        {isWinner 
-          ? 'إنجاز أسطوري! صور ترتيبك الآن في لوحة الصدارة وأرسلها لنا لاستلام جائزة المركز الأول.' 
-          : 'لأنك بطل وشاركت معنا، لك جائزة ترضية فورية! صور الشاشة وأرسلها لنا في الخاص.'}
-      </p>
-      
-      <button 
-        onClick={() => window.open('https://instagram.com/YOUR_USERNAME', '_blank')}
-        style={{
-          background: isWinner ? '#fbbf24' : '#374151',
-          color: isWinner ? '#000' : '#fff',
-          width: '100%', padding: '15px', borderRadius: '12px',
-          fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px', cursor: 'pointer'
-        }}
-      >
-        إرسال الصورة للإنستقرام 📸
-      </button>
-      
-      <button 
-        onClick={() => setShowRewardModal(false)}
-        style={{ color: isWinner ? '#aaa' : '#666', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer' }}
-      >
-        إغلاق
-      </button>
-    </div>
-  </div>
-)}
     </div>
   );
 }
