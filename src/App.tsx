@@ -509,24 +509,24 @@ function App() {
       }
     }
   };
-  const tr = t[language];
+    const tr = t[language];
+
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
-    useEffect(() => {
-    // إذا انتهت اللعبة (Game Over) وظهرت النتائج
+
+  useEffect(() => {
     if (gameOver) {
-      // إذا كان من ضمن الثلاثة الأوائل (المثلث الذهبي)
       if (ranking <= 3) {
         setIsWinner(true);
       } else {
-        // إذا كان خاسراً أو في ترتيب متأخر
         setIsWinner(false);
       }
-      // افتح النافذة تلقائياً بعد ثانيتين من ظهور النتيجة
       setTimeout(() => setShowRewardModal(true), 2000);
     }
   }, [gameOver, ranking]);
+
   return (
+
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
           {/* بنر التحفيز العلوي */}
       <div style={{
