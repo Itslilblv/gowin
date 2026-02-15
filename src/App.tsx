@@ -513,20 +513,23 @@ function App() {
   const tr = t[language];
 
   return (
-        <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
-  
-  {/* 1. تدرج السماء الليلية الواقعي */}
-  <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
+            <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
+      
+      {/* 1. الخلفية الرمضانية (تدرج ونجوم) */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
+      <div className="absolute inset-0 z-0 opacity-30 pointer-events-none" 
+           style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/stardust.png')` }}>
+      </div>
+      <div className="absolute top-20 right-10 text-6xl opacity-20 blur-[1px] pointer-events-none animate-pulse">🌙</div>
 
-  {/* 2. طبقة النجوم المتناثرة (باستخدام كود CSS خفيف) */}
-  <div className="absolute inset-0 z-0 opacity-30 pointer-events-none" 
-       style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/stardust.png')` }}>
-  </div>
-
-  {/* 3. الزخارف الإسلامية الشفافة في الأركان */}
-  <div className="absolute inset-0 z-0 opacity-5 pointer-events-none"
-       style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/islamic-art.png')` }}>
-  </div>
+      {/* 2. البانر الذهبي (تأكد أن الـ z-index عالي لكي لا يختفي) */}
+      <div className="fixed top-0 left-0 right-0 z-[100] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 shadow-[0_2px_15px_rgba(234,179,8,0.4)] flex items-center border-b border-yellow-300/30">
+        <div className="whitespace-nowrap animate-marquee flex items-center text-black font-black text-[10px] sm:text-xs uppercase tracking-wider">
+          <span className="mx-8">🎁 مبارك عليكم الشهر: جوائز نقدية لأبطال المربع الذهبي 🎁</span>
+          <span className="mx-8">🏆 المراكز (1-4) يستلمون الجوائز عبر الخاص 🏆</span>
+          <span className="mx-8">🌙 رمضان يجمعنا في دوري Gowin الأقوى 🌙</span>
+        </div>
+      </div>
 
   {/* 4. الهلال المتوهج (بإضافة تأثير Pulse للحركة) */}
   <div className="absolute top-20 right-10 text-6xl opacity-20 blur-[1px] pointer-events-none animate-pulse">🌙</div>
