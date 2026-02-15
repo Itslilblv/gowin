@@ -1207,17 +1207,23 @@ function App() {
           color: isWinner ? '#000' : '#fff',
           width: '100%', padding: '15px', borderRadius: '12px',
           fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px', cursor: 'pointer'
-        }}
-      >
+                >
         إرسال الصورة للإنستقرام 📸
       </button>
-      {/* تأكد من وجود هذه الأغلاقات الثلاثة */}
+
+      <button 
+        onClick={() => setShowRewardModal(false)}
+        style={{ color: isWinner ? '#aaa' : '#666', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer', marginTop: '10px' }}
+      >
+        إغلاق
+      </button>
     </div>
   </div>
 )}
-
-    </div>
-  );
+          </div>
+        </footer>
+      </div>
+    );
 }
 
 export default App;
