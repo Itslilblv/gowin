@@ -521,6 +521,9 @@ function App() {
            style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/stardust.png')` }}>
       </div>
       <div className="absolute top-20 right-10 text-6xl opacity-20 blur-[1px] pointer-events-none animate-pulse">🌙</div>
+{/* فوانيس معلقة متحركة */}
+<div className="absolute top-10 left-8 text-4xl opacity-40 animate-[bounce_4s_infinite] pointer-events-none">🏮</div>
+<div className="absolute top-40 right-12 text-3xl opacity-30 animate-[bounce_3s_infinite] pointer-events-none">🏮</div>
 
       {/* 2. البانر الذهبي (تأكد أن الـ z-index عالي لكي لا يختفي) */}
       <div className="fixed top-0 left-0 right-0 z-[100] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 shadow-[0_2px_15px_rgba(234,179,8,0.4)] flex items-center border-b border-yellow-300/30">
