@@ -1211,16 +1211,11 @@ function App() {
       >
         إرسال الصورة للإنستقرام 📸
       </button>
-      
-      <button 
-        onClick={() => setShowRewardModal(false)}
-        style={{ color: isWinner ? '#aaa' : '#666', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer' }}
-      >
-        إغلاق
-      </button>
+      {/* تأكد من وجود هذه الأغلاقات الثلاثة */}
     </div>
   </div>
 )}
+
     </div>
   );
 }
