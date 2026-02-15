@@ -511,19 +511,6 @@ function App() {
   };
 
   const tr = t[language];
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [isWinner, setIsWinner] = useState(false);
-
-  useEffect(() => {
-    if (gameOver) {
-      if (ranking <= 3) {
-        setIsWinner(true);
-      } else {
-        setIsWinner(false);
-      }
-      setTimeout(() => setShowRewardModal(true), 2000);
-    }
-  }, [gameOver, ranking]);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
@@ -1164,55 +1151,6 @@ function App() {
           <span className="font-bold">@_itlulp</span>
         </a>
       </footer>
-      {/* نافذة المكافأة المخصصة للدوري (Modal) */}
-{showRewardModal && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-    <div className="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-yellow-500 rounded-3xl p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(234,179,8,0.3)] transform animate-in zoom-in-95 duration-300">
-      
-      {/* الأيقونة */}
-      <div className="text-6xl mb-4">{isWinner ? '🏆' : '🎮'}</div>
-      
-      {/* عنوان التهنئة */}
-      <h2 className="text-2xl font-black text-white mb-2 leading-tight">
-        {isWinner ? "مبروك! بطل الدوري" : "هاردلك! أبدعت بالدوري"}
-      </h2>
-
-      {/* رسالة التعليمات والأثبات */}
-      <p className="text-slate-300 mb-6 text-sm leading-relaxed">
-        {isWinner 
-          ? "أنت من نخبة اللاعبين! صور الشاشة الآن كإثبات لفوزك وتواصل معنا لاستلام جائزتك." 
-          : "لعبك كان أسطوري! صور الشاشة وشاركنا نتيجتك للحصول على جائزة المشاركة."}
-      </p>
-
-      {/* منطقة التنبيه لتصوير الشاشة */}
-      <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-3 mb-6">
-        <p className="text-yellow-500 text-xs font-bold">
-          📸 يرجى تصوير الشاشة (Screenshot) قبل الإغلاق
-        </p>
-      </div>
-
-      {/* زر الانتقال للإنستقرام كتاق */}
-      <button 
-        onClick={() => {
-          window.open('https://www.instagram.com/_itlulp?igsh=eW8zeDdxZWdrOHZi&utm_source=qr', '_blank');
-          setShowRewardModal(false);
-        }}
-        className="w-full py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-black text-lg rounded-2xl shadow-xl transition-all active:scale-95 mb-2"
-      >
-        <span>انقر هنا للاستلام عبر </span>
-        <span className="underline decoration-2">إنستقرام</span>
-      </button>
-      
-      <button 
-        onClick={() => setShowRewardModal(false)}
-        className="text-slate-400 text-sm underline mt-2"
-      >
-        إغلاق
-      </button>
-    </div>
-  </div>
-)}
-
     </div>
   );
 }
