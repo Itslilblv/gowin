@@ -513,26 +513,28 @@ function App() {
   const tr = t[language];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
-      {/* Animated background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/20 animate-pulse"></div>
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-64 h-64 bg-gradient-to-r from-yellow-400/10 to-purple-500/10 rounded-full blur-3xl animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.5}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
+        <div className="min-h-screen bg-[#1a0b2e] relative overflow-hidden text-white font-sans">
+      
+      {/* الزخارف الرمضانية الخلفية */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none" 
+           style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/islamic-art.png')` }}>
+      </div>
+
+      {/* تأثير الإضاءة الليلية (قمر ونجوم) */}
+      <div className="absolute top-10 right-10 text-6xl opacity-20 blur-sm pointer-events-none">🌙</div>
+      <div className="absolute top-24 left-10 text-4xl opacity-10 blur-sm pointer-events-none">✨</div>
+
+      {/* البانر الذهبي العلوي */}
+      <div className="fixed top-0 left-0 right-0 z-[60] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 shadow-[0_2px_15px_rgba(234,179,8,0.4)] flex items-center border-b border-yellow-300/30">
+        <div className="whitespace-nowrap animate-marquee flex items-center text-black font-black text-[10px] sm:text-xs uppercase tracking-wider">
+          <span className="mx-8">🎁 مفاجأة الدوري: المربع الذهبي يحصل على أكواد خصم حصرية 🎁</span>
+          <span className="mx-8">🏆 حقق المركز 1 أو 2 أو 3 أو 4 واستلم كودك فوراً 🏆</span>
+          <span className="mx-8">🔥 أثبت مهارتك الآن 🔥</span>
+        </div>
       </div>
 
       {/* Header */}
-      <header className="relative z-50 flex justify-between items-center p-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
+      <header className="relative z-50 pt-12 flex justify-between items-center p-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
         <button
           onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
           className="px-2 py-1 bg-white/10 rounded-lg text-xs hover:bg-white/20 transition-colors text-white"
