@@ -1,85 +1,92 @@
 import { useState, useEffect, useRef } from 'react';
 
-// Questions data - لم يتم تغيير أي حرف هنا
-const questionsSets = {
-  set1: {
-    arabic: [
-      { id: 1, question: "ما هي عاصمة المملكة العربية السعودية؟", options: ["جدة", "الرياض", "مكة", "الدمام"], correct: 1, points: 10, difficulty: "سهل جداً" },
-      { id: 2, question: "كم عدد الكواكب في المجموعة الشمسية؟", options: ["7", "8", "9", "10"], correct: 1, points: 10, difficulty: "سهل جداً" },
-      { id: 3, question: "من هو مؤسس شركة أبل؟", options: ["بيل غيتس", "ستيف جوبز", "مارك زوكربيرغ", "إيلون ماسك"], correct: 1, points: 10, difficulty: "سهل جداً" },
-      { id: 4, question: "ما هو الحيوان الأسرع في العالم؟", options: ["الفهد", "النمر", "الغزال", "صقر"], correct: 0, points: 15, difficulty: "متوسط" },
-      { id: 5, question: "كم عدد ألوان قوس قزح؟", options: ["5", "6", "7", "8"], correct: 2, points: 15, difficulty: "متوسط" },
-      { id: 6, question: "من فاز بكأس العالم 2018؟", options: ["ألمانيا", "البرازيل", "فرنسا", "كرواتيا"], correct: 2, points: 20, difficulty: "صعب قليلاً" },
-    ],
-    english: []
-  }
+// 1. مصفوفة الأسئلة المحدثة (3 مجموعات تتغير تلقائياً)
+const questionsData = {
+  set1: [
+    { id: 1, question: "ما هي عاصمة المملكة العربية السعودية؟", options: ["جدة", "الرياض", "مكة", "الدمام"], correct: 1, points: 10 },
+    { id: 2, question: "كم عدد الكواكب في المجموعة الشمسية؟", options: ["7", "8", "9", "10"], correct: 1, points: 10 }
+  ],
+  set2: [
+    { id: 1, question: "ما هو أكبر محيط في العالم؟", options: ["الأطلسي", "الهادئ", "الهندي", "القطبي"], correct: 1, points: 10 },
+    { id: 2, question: "ما هو العنصر الكيميائي للذهب؟", options: ["Ag", "Fe", "Au", "Cu"], correct: 2, points: 10 }
+  ],
+  set3: [
+    { id: 1, question: "ما هو اليوم الوطني للمملكة؟", options: ["23 سبتمبر", "1 يناير", "14 أكتوبر", "11 نوفمبر"], correct: 0, points: 10 },
+    { id: 2, question: "من هو مؤسس المملكة العربية السعودية؟", options: ["الملك فيصل", "الملك عبدالعزيز", "الملك فهد", "الملك عبدالله"], correct: 1, points: 20 }
+  ]
 };
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [playerName, setPlayerName] = useState('');
+  const [players, setPlayers] = useState([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
+  const [currentSet, setCurrentSet] = useState('set1'); // نظام تبديل الأسئلة
+  const [leagueWinner, setLeagueWinner] = useState(null);
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [chatMessages, setChatMessages] = useState<{name: string, text: string, time: string, isMe: boolean}[]>([]);
-  const [chatInput, setChatInput] = useState('');
 
-  // --- نظام نغمات برمجية بسيطة (بدل الموسيقى) ---
-  const playBeep = (freq: number) => {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  // نغمات برمجية
+  const playBeep = (freq) => {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    gain.gain.value = 0.05;
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = freq; gain.gain.value = 0.05;
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
   };
 
-  useEffect(() => {
-    if (!gameStarted) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) { 
-          playBeep(200);
-          if (lives > 1) { setLives(l => l - 1); return 15; }
-          setGameStarted(false); setActiveTab('leaderboard'); return 15;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [gameStarted, lives]);
-
-  const handleAnswer = (index: number) => {
-    playBeep(500);
-    const correct = questionsSets.set1.arabic[currentQuestionIndex].correct;
-    if (index === correct) setScore(s => s + 10);
-    else if (lives > 1) setLives(l => l - 1);
-
-    if (currentQuestionIndex < questionsSets.set1.arabic.length - 1) {
-      setCurrentQuestionIndex(c => c + 1);
-      setTimeLeft(15);
-    } else {
-      setGameStarted(false);
-      setActiveTab('leaderboard');
+  // 2. منطق الدوري (20 لاعب + مواجهات إقصائية + تبديل أسئلة)
+  const runLeague = (allPlayers) => {
+    let currentRound = [...allPlayers];
+    while (currentRound.length > 1) {
+      let nextRound = [];
+      for (let i = 0; i < currentRound.length; i += 2) {
+        if (currentRound[i + 1]) {
+          const winner = Math.random() > 0.5 ? currentRound[i] : currentRound[i + 1];
+          nextRound.push(winner);
+        } else { nextRound.push(currentRound[i]); }
+      }
+      currentRound = nextRound;
     }
+    
+    setLeagueWinner(currentRound[0].name); // وضع الفائز في الكرت
+
+    // إعادة ضبط الدوري والأسئلة تلقائياً بعد 15 ثانية
+    setTimeout(() => {
+      setPlayers([]); // تصفير الـ 20 لاعب لبدء دوري جديد
+      setCurrentSet(prev => prev === 'set1' ? 'set2' : prev === 'set2' ? 'set3' : 'set1');
+      setCurrentQuestionIndex(0);
+    }, 15000);
+  };
+
+  const startChallenge = () => {
+    if (!playerName) return;
+    const newPlayer = { id: Date.now(), name: playerName };
+    const updated = [...players, newPlayer];
+    setPlayers(updated);
+    setGameStarted(true);
+    setActiveTab('challenge');
+    if (updated.length >= 20) runLeague(updated);
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
+    <div className="min-h-screen relative overflow-hidden text-white font-sans">
       <style>{`
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 15s linear infinite; }
       `}</style>
 
-      {/* البانر الذهبي المتحرك */}
-      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
-        <div className="animate-marquee text-black font-black text-xs">
-           🎁 كود نون: VTP129 🎁 | 🏆 هدايا قيمة للمربع الذهبي (1-4) 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙 | كود الخصم: VTP129
+      {/* خلفيتك الأصلية */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
+      <div className="absolute top-20 right-10 text-6xl opacity-20 pointer-events-none animate-pulse">🌙</div>
+      <div className="absolute top-10 left-8 text-4xl opacity-40 animate-bounce pointer-events-none">🏮</div>
+
+      {/* البانر الذهبي */}
+      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30 shadow-lg">
+        <div className="animate-marquee text-black font-black text-xs uppercase">
+           🎁 كود نون: VTP129 🎁 | 🏆 هدايا للمربع الذهبي 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙 | كود الخصم: VTP129
         </div>
       </div>
 
@@ -87,77 +94,78 @@ function App() {
         <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
       </header>
 
-      {/* التبويبات بالإيموجيات فقط (تم إضافة تبويب الهدية) */}
-      <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
-        <button onClick={() => { playBeep(400); setActiveTab('home'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'home' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🏠</button>
-        <button onClick={() => { playBeep(400); setActiveTab('leaderboard'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'leaderboard' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>📊</button>
-        <button onClick={() => { playBeep(400); setActiveTab('live'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'live' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🔴</button>
-        <button onClick={() => { playBeep(400); setActiveTab('history'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'history' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>📜</button>
-        <button onClick={() => { playBeep(400); setActiveTab('friends'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'friends' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>💬</button>
-        <button onClick={() => { playBeep(400); setActiveTab('prizes'); }} className={`p-3 rounded-xl transition-all ${activeTab === 'prizes' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🎁</button>
+      {/* التبويبات الستة (أيقونات فقط) */}
+      <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20 backdrop-blur-md">
+        {['home', 'leaderboard', 'live', 'history', 'friends', 'prizes'].map((tab, idx) => (
+          <button key={tab} onClick={() => {playBeep(400); setActiveTab(tab)}} 
+            className={`p-3 rounded-xl transition-all ${activeTab === tab ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>
+            {['🏠', '📊', '🔴', '📜', '💬', '🎁'][idx]}
+          </button>
+        ))}
       </nav>
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
-          <div className="max-w-2xl mx-auto text-center py-10 space-y-6">
-            <h1 className="text-6xl font-bold text-yellow-400 mb-6">⚔️ GOWIN ⚔️</h1>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="اسمك الكريم..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20 text-center outline-none" />
-            <button onClick={() => { playBeep(800); setGameStarted(true); setActiveTab('challenge'); }} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 ابدأ التحدي</button>
+          <div className="max-w-2xl mx-auto space-y-8 py-6">
+            <div className="text-center">
+              <h1 className="text-6xl font-black text-yellow-400 mb-2">⚔️ GOWIN ⚔️</h1>
+              <p className="text-white/60">أقوى دوري إقصائي (20 لاعب)</p>
+            </div>
+
+            {/* إدخال الاسم */}
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-lg">
+              <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="سجل اسمك للبطولة..." 
+                className="w-full bg-white/10 p-4 rounded-2xl border border-white/20 text-center text-xl outline-none" />
+              <button onClick={startChallenge} className="w-full mt-4 py-4 rounded-2xl font-black text-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-black">🚀 دخول الدوري</button>
+              <p className="text-center mt-3 text-xs text-yellow-400">المقاعد: {players.length} / 20</p>
+            </div>
+
+            {/* كرت الفائز - The Golden Goat */}
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-yellow-700 via-yellow-400 to-yellow-800 p-[2px] shadow-2xl">
+              <div className="bg-[#1a0f00] rounded-[22px] p-8 text-center">
+                <h2 className="text-2xl font-black text-yellow-400">THE GOLDEN GOAT</h2>
+                <div className="mt-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl">
+                  <p className="text-yellow-400 font-bold text-2xl uppercase">
+                    {leagueWinner ? `🐐 ${leagueWinner} 🐐` : "⏳ بانتظار البطل..."}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* التبويب الجديد: تعليمات الدوري والهدايا */}
+        {/* تبويب الهدايا (🎁) */}
         {activeTab === 'prizes' && (
           <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30">
-            <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري والجوائز</h2>
-            <div className="bg-white/5 p-6 rounded-xl text-right whitespace-pre-line text-white/90 leading-relaxed">
-                1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.{"\n"}
-                2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.{"\n"}
-                3. أصحاب المراكز (1-4) يحصلون على هدايا قيمة فورية.{"\n"}
-                4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.{"\n"}
-                5. كود الخصم VTP129 متاح للجميع للاستخدام في نون.
+            <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري</h2>
+            <div className="bg-white/5 p-6 rounded-xl text-right text-white/90 leading-relaxed">
+                1. الدوري يضم 20 لاعباً بنظام الإقصاء المباشر.{"\n"}
+                2. كل مواجهة تخرج الخاسر وتصعد بالفائز.{"\n"}
+                3. المركز الأول يتوج بلقب The Golden Goat.{"\n"}
+                4. المربع الذهبي (1-4) يحصلون على هدايا قيمة.{"\n"}
+                5. كود نون VTP129 متاح للجميع.
             </div>
           </div>
         )}
 
-        {activeTab === 'leaderboard' && <div className="text-center py-10 text-white/60">لوحة المتصدرين فارغة حالياً</div>}
-
+        {/* نظام التحدي */}
         {activeTab === 'challenge' && gameStarted && (
-          <div className="max-w-2xl mx-auto text-center space-y-4">
-            <div className="flex justify-between font-bold text-xl px-2"><span>❤️ {lives}</span><span className="text-yellow-400">⏱️ {timeLeft}</span></div>
-            <div className="bg-white/5 p-8 rounded-2xl border border-white/20">
-              <h2 className="text-xl font-bold mb-8">{questionsSets.set1.arabic[currentQuestionIndex]?.question}</h2>
-              <div className="grid gap-4">
-                {questionsSets.set1.arabic[currentQuestionIndex]?.options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-yellow-500 hover:text-black transition-all">{opt}</button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'friends' && (
-           <div className="max-w-2xl mx-auto bg-white/5 p-6 rounded-2xl border border-white/10">
-              <div className="h-64 overflow-y-auto space-y-3 mb-4 p-2 bg-black/20 rounded-xl">
-                {chatMessages.map((msg, index) => (
-                  <div key={index} className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`rounded-2xl px-4 py-2 ${msg.isMe ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white'}`}>
-                      <p className="text-xs font-bold opacity-70">{msg.name}</p>
-                      <p>{msg.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="اكتب رسالة..." className="flex-1 bg-white/10 p-3 rounded-xl border border-white/20 outline-none" />
-                <button onClick={() => { if(chatInput) { setChatMessages([...chatMessages, {name: playerName||'لاعب', text: chatInput, time: '', isMe: true}]); setChatInput(''); } }} className="bg-yellow-500 text-black px-6 rounded-xl font-bold">إرسال</button>
+           <div className="max-w-2xl mx-auto text-center space-y-6">
+              <div className="bg-white/5 p-8 rounded-[40px] border border-white/20">
+                 <h2 className="text-2xl font-bold mb-10">{questionsData[currentSet][currentQuestionIndex]?.question}</h2>
+                 <div className="grid gap-4">
+                    {questionsData[currentSet][currentQuestionIndex]?.options.map((opt, i) => (
+                      <button key={i} onClick={() => { playBeep(600); if(currentQuestionIndex < 1) setCurrentQuestionIndex(1); else { setGameStarted(false); setActiveTab('home'); } }} 
+                        className="p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-yellow-500 transition-all font-bold">{opt}</button>
+                    ))}
+                 </div>
               </div>
            </div>
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/80 backdrop-blur-md border-t border-white/5">
-        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold text-sm">📷 @_itlulp</a>
+      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/60 backdrop-blur-md">
+        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold">📷 @_itlulp</a>
       </footer>
     </div>
   );
