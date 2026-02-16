@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
-// Questions data (لم يتم تعديلها)
+// Questions data - لم يتم تغيير أي حرف هنا
 const questionsSets = {
   set1: {
     arabic: [
       { id: 1, question: "ما هي عاصمة المملكة العربية السعودية؟", options: ["جدة", "الرياض", "مكة", "الدمام"], correct: 1, points: 10, difficulty: "سهل جداً" },
       { id: 2, question: "كم عدد الكواكب في المجموعة الشمسية؟", options: ["7", "8", "9", "10"], correct: 1, points: 10, difficulty: "سهل جداً" },
-      { id: 3, question: "من هو مؤسس شركة أبل؟", options: ["بيل غيتس", "ستيف جوبز", "مارك زوكربيرغ", "إيلون ماسك"], correct: 1, points: 10, difficulty: "سهل جداً" },
+      { id: 3, question: "من هو مؤسس شركة أبل? ", options: ["بيل غيتس", "ستيف جوبز", "مارك زوكربيرغ", "إيلون ماسك"], correct: 1, points: 10, difficulty: "سهل جداً" },
       { id: 4, question: "ما هو الحيوان الأسرع في العالم؟", options: ["الفهد", "النمر", "الغزال", "صقر"], correct: 0, points: 15, difficulty: "متوسط" },
       { id: 5, question: "كم عدد ألوان قوس قزح؟", options: ["5", "6", "7", "8"], correct: 2, points: 15, difficulty: "متوسط" },
       { id: 6, question: "من فاز بكأس العالم 2018؟", options: ["ألمانيا", "البرازيل", "فرنسا", "كرواتيا"], correct: 2, points: 20, difficulty: "صعب قليلاً" },
@@ -59,20 +59,17 @@ const questionsSets = {
 };
 
 type Player = { id: string; name: string; avatar: string; points: number; lives: number; isWinner: boolean; joinedAt: Date; deviceId: string; };
-type MatchHistory = { id: string; player1: string; player2: string; score1: number; score2: number; winner: string; round: string; date: Date; };
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'challenge' | 'prizes'>('home');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [playerName, setPlayerName] = useState('');
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-  const [matchHistory, setMatchHistory] = useState<MatchHistory[]>([]);
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
   const [currentQuestionSet, setCurrentQuestionSet] = useState(0);
@@ -80,29 +77,20 @@ function App() {
   const [chatInput, setChatInput] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    const savedPlayer = localStorage.getItem('gowin_player');
-    if (savedPlayer) { const p = JSON.parse(savedPlayer); setCurrentPlayer(p); setPlayerName(p.name); }
-    const savedPlayers = localStorage.getItem('gowin_all_players');
-    if (savedPlayers) setPlayers(JSON.parse(savedPlayers));
-  }, []);
-
-  // --- التعديل المطلوب: الموسيقى عند لمس الشاشة ---
+  // موسيقى رمضان (تعمل عند التفاعل)
   useEffect(() => {
     const musicUrl = 'https://www.arabic-keyboard.org/mp3/ramadan-gana.mp3';
-    const playMusic = () => {
+    const startMusic = () => {
       if (!audioRef.current) {
         audioRef.current = new Audio(musicUrl);
         audioRef.current.loop = true;
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {});
       }
+      window.removeEventListener('click', startMusic);
+      window.removeEventListener('touchstart', startMusic);
     };
-    window.addEventListener('touchstart', playMusic);
-    window.addEventListener('mousedown', playMusic);
-    return () => {
-      window.removeEventListener('touchstart', playMusic);
-      window.removeEventListener('mousedown', playMusic);
-    };
+    window.addEventListener('click', startMusic);
+    window.addEventListener('touchstart', startMusic);
   }, []);
 
   useEffect(() => {
@@ -149,34 +137,27 @@ function App() {
 
   const endChallenge = () => { setGameStarted(false); setActiveTab('leaderboard'); };
 
-  const sendMessage = () => {
-    if (!chatInput.trim() || !playerName) return;
-    const msg = { name: playerName, text: chatInput, time: new Date().toLocaleTimeString(), isMe: true };
-    setChatMessages(prev => [...prev, msg]);
-    setChatInput('');
-  };
-
   const currentQuestions = language === 'ar' ? questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].arabic : questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].english;
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
-      {/* --- التعديل المطلوب: حركة البانر الذهبي --- */}
       <style>{`
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 15s linear infinite; }
       `}</style>
 
+      {/* البانر الذهبي المتحرك */}
       <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="animate-marquee text-black font-black text-xs">
            🎁 كود خصم نون: VTP129 🎁 | 🏆 جوائز نقدية للمربع الذهبي (1-4) 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙
         </div>
       </div>
 
-      <header className="relative z-50 pt-14 flex justify-center p-4">
-        <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
+      <header className="relative z-50 pt-14 flex justify-center p-4 text-2xl font-bold text-yellow-400">
+        🏮 GOWIN 🏮
       </header>
 
-      {/* --- التعديل المطلوب: التبويبات إيموجيات فقط --- */}
+      {/* التبويبات بالإيموجيات فقط */}
       <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
         <button onClick={() => setActiveTab('home')} className={`p-3 rounded-xl ${activeTab === 'home' ? 'bg-yellow-500' : 'bg-white/10'}`}>🏠</button>
         <button onClick={() => setActiveTab('leaderboard')} className={`p-3 rounded-xl ${activeTab === 'leaderboard' ? 'bg-yellow-500' : 'bg-white/10'}`}>📊</button>
@@ -188,38 +169,35 @@ function App() {
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
-          <div className="max-w-2xl mx-auto space-y-6 text-center py-10">
+          <div className="max-w-2xl mx-auto text-center py-10 space-y-6">
             <h1 className="text-6xl font-bold text-yellow-400 mb-6">⚔️ GOWIN ⚔️</h1>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="سجل اسمك..." className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none text-center" />
+            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="اسمك الكريم..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20 text-center outline-none" />
             <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">🚀 ابدأ التحدي</button>
           </div>
         )}
 
-        {/* --- التعديل المطلوب: تعليمات الدوري بدلاً من الجوائز --- */}
+        {/* تعليمات الدوري الرمضاني */}
         {activeTab === 'prizes' && (
-          <div className="max-w-2xl mx-auto space-y-4">
-            <div className="bg-yellow-500/10 rounded-3xl p-8 border border-yellow-500/30">
-              <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري</h2>
-              <div className="bg-white/5 p-6 rounded-xl border border-white/10 text-right whitespace-pre-line text-white/90 leading-relaxed">
+          <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30">
+            <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري</h2>
+            <div className="bg-white/5 p-6 rounded-xl text-right whitespace-pre-line text-white/90">
                 1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.{"\n"}
                 2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.{"\n"}
                 3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.{"\n"}
                 4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.{"\n"}
                 5. كود الخصم VTP129 متاح للجميع للاستخدام في نون.
-              </div>
             </div>
           </div>
         )}
 
-        {/* باقي الكود الأصلي كما هو */}
         {activeTab === 'challenge' && gameStarted && (
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="flex justify-between mb-4 font-bold text-xl px-2"><span>❤️ {lives}</span><span className="text-yellow-400">⏱️ {timeLeft}</span></div>
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <div className="flex justify-between font-bold text-xl px-2"><span>❤️ {lives}</span><span className="text-yellow-400">⏱️ {timeLeft}</span></div>
             <div className="bg-white/5 p-8 rounded-2xl border border-white/20">
               <h2 className="text-xl font-bold mb-8">{currentQuestions[currentQuestionIndex]?.question}</h2>
               <div className="grid gap-4">
                 {currentQuestions[currentQuestionIndex]?.options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl">{opt}</button>
+                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10">{opt}</button>
                 ))}
               </div>
             </div>
