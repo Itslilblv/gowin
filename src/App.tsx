@@ -142,8 +142,6 @@ function App() {
     }
   }, []);
 
-  const [activeTab, setActiveTab] = useState('leaderboard');
-
   // Save data
   useEffect(() => {
     if (currentPlayer) {
