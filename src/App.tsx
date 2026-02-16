@@ -58,39 +58,9 @@ const questionsSets = {
   }
 };
 
-type Player = {
-  id: string;
-  name: string;
-  avatar: string;
-  points: number;
-  lives: number;
-  isWinner: boolean;
-  joinedAt: Date;
-  deviceId: string;
-};
-
-type Match = {
-  id: string;
-  player1: Player;
-  player2: Player;
-  score1: number;
-  score2: number;
-  round: number;
-  status: 'pending' | 'live' | 'finished';
-  winner?: Player;
-  loser?: Player;
-};
-
-type MatchHistory = {
-  id: string;
-  player1: string;
-  player2: string;
-  score1: number;
-  score2: number;
-  winner: string;
-  round: string;
-  date: Date;
-};
+type Player = { id: string; name: string; avatar: string; points: number; lives: number; isWinner: boolean; joinedAt: Date; deviceId: string; };
+type Match = { id: string; player1: Player; player2: Player; score1: number; score2: number; round: number; status: 'pending' | 'live' | 'finished'; winner?: Player; loser?: Player; };
+type MatchHistory = { id: string; player1: string; player2: string; score1: number; score2: number; winner: string; round: string; date: Date; };
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'challenge' | 'prizes'>('home');
@@ -103,7 +73,6 @@ function App() {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-  const [matches, setMatches] = useState<Match[]>([]);
   const [matchHistory, setMatchHistory] = useState<MatchHistory[]>([]);
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
@@ -114,11 +83,7 @@ function App() {
 
   useEffect(() => {
     const savedPlayer = localStorage.getItem('gowin_player');
-    if (savedPlayer) {
-      const player = JSON.parse(savedPlayer);
-      setCurrentPlayer(player);
-      setPlayerName(player.name);
-    }
+    if (savedPlayer) { const p = JSON.parse(savedPlayer); setCurrentPlayer(p); setPlayerName(p.name); }
     const savedPlayers = localStorage.getItem('gowin_all_players');
     if (savedPlayers) setPlayers(JSON.parse(savedPlayers));
     const savedChat = localStorage.getItem('gowin_chat');
@@ -149,7 +114,6 @@ function App() {
   // --- الموسيقى الرمضانية المطلوبة ---
   useEffect(() => {
     const musicUrl = 'https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Ramadan+Kareem&filename=mt/MTI0NDU5OTI0NDU5Njg1_P_2bfG_2fFmE0.mp3';
-    
     const playMusic = () => {
       if (!audioRef.current) {
         audioRef.current = new Audio(musicUrl);
@@ -158,20 +122,9 @@ function App() {
         audioRef.current.play().catch(() => {});
       }
     };
-
-    const handleInteraction = () => {
-      playMusic();
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-
+    const handleInteraction = () => { playMusic(); document.removeEventListener('click', handleInteraction); };
     document.addEventListener('click', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
-
-    return () => {
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
+    return () => document.removeEventListener('click', handleInteraction);
   }, []);
 
   useEffect(() => {
@@ -185,10 +138,7 @@ function App() {
     return () => clearInterval(timer);
   }, [showResult, gameStarted]);
 
-  const handleTimeOut = () => {
-    if (lives > 1) { setLives(prev => prev - 1); setTimeLeft(15); }
-    else endChallenge();
-  };
+  const handleTimeOut = () => { if (lives > 1) { setLives(prev => prev - 1); setTimeLeft(15); } else endChallenge(); };
 
   const startChallenge = () => {
     if (!playerName.trim()) return;
@@ -238,63 +188,43 @@ function App() {
     setChatInput('');
   };
 
-  const t = {
+  const tr = {
     ar: {
-      welcome: "مرحباً بك في Gowin",
-      subtitle: "الدوري الأقوى - 20 لاعب يتنافسون على Golden Goat",
-      startChallenge: "🚀 ابدأ التحدي",
-      points: "نقاط",
-      noonCodeBanner: "🎁 كود خصم نون: VTP129 🎁",
-      noonCode: "كود خصم نون: VTP129",
-      leagueInstructions: "🏆 تعليمات الدوري الرمضاني:\n1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.\n2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.\n3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.\n4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.\n5. كود الخصم VTP129 متاح للجميع للاستخدام في نون."
+      noonCode: "🎁 كود خصم نون: VTP129 🎁",
+      instructions: "🏆 تعليمات الدوري الرمضاني:\n1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.\n2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.\n3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.\n4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.\n5. كود الخصم VTP129 متاح للجميع للاستخدام في نون."
     },
     en: {
-      welcome: "Welcome to Gowin",
-      subtitle: "Compete for the Golden Goat",
-      startChallenge: "🚀 Start Challenge",
-      points: "points",
-      noonCodeBanner: "🎁 Noon Promo: VTP129 🎁",
-      noonCode: "Noon Code: VTP129",
-      leagueInstructions: "🏆 League Rules:\n1. 20 players total.\n2. Top 8 qualify for playoffs.\n3. Top 4 win cash prizes.\n4. You have 5 lives.\n5. Use code VTP129 on Noon."
+      noonCode: "🎁 Noon Code: VTP129 🎁",
+      instructions: "🏆 League Rules:\n1. 20 players total.\n2. Top 8 qualify for playoffs.\n3. Top 4 win cash prizes.\n4. You have 5 lives.\n5. Use code VTP129 on Noon."
     }
-  };
+  }[language];
 
-  const tr = t[language];
   const currentQuestions = language === 'ar' ? questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].arabic : questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].english;
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-          display: inline-block;
-          animation: marquee 15s linear infinite;
-        }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; animation: marquee 15s linear infinite; }
       `}</style>
-      
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
-      
+
       {/* --- البانر الذهبي المتحرك المطلوب --- */}
-      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 flex items-center shadow-lg border-b border-yellow-300/30 overflow-hidden">
-        <div className="animate-marquee whitespace-nowrap text-black font-black text-xs">
-          <span className="mx-10">{tr.noonCodeBanner}</span>
+      <div className="fixed top-0 left-0 right-0 z-[100] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center border-b border-yellow-300/30">
+        <div className="animate-marquee whitespace-nowrap text-black font-black text-xs uppercase">
+          <span className="mx-10">{tr.noonCode}</span>
           <span className="mx-10">🏆 جوائز نقدية لأبطال المربع الذهبي (1-4) 🏆</span>
-          <span className="mx-10">{tr.noonCodeBanner}</span>
-          <span className="mx-10">🌙 رمضان يجمعنا في دوري Gowin 🌙</span>
+          <span className="mx-10">{tr.noonCode}</span>
         </div>
       </div>
 
       <header className="relative z-50 pt-12 flex justify-between items-center p-4">
-        <button onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="px-2 py-1 bg-white/10 rounded-lg text-xs">{language === 'ar' ? 'EN' : 'ع'}</button>
+        <button onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="px-2 py-1 bg-white/10 rounded-lg text-xs text-white">{language === 'ar' ? 'EN' : 'ع'}</button>
         <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
         <div className="w-8"></div>
       </header>
 
       {/* --- التبويبات بالإيموجيات المطلوبة --- */}
-      <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
+      <nav className="relative z-50 flex justify-center gap-1 p-4 bg-black/20">
         {[
           { id: 'home', icon: '🏠' },
           { id: 'leaderboard', icon: '📊' },
@@ -303,7 +233,7 @@ function App() {
           { id: 'friends', icon: '💬' },
           { id: 'prizes', icon: '🎁' },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`p-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-yellow-500 scale-110' : 'bg-white/10 hover:bg-white/20'}`}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`p-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>
             <span className="text-xl">{tab.icon}</span>
           </button>
         ))}
@@ -311,27 +241,23 @@ function App() {
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
-          <div className="max-w-2xl mx-auto space-y-6 text-center">
-            <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-4">⚔️ GOWIN ⚔️</h1>
-            <p className="text-xl opacity-80">{tr.welcome}</p>
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-              <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder={language === 'ar' ? 'أدخل اسمك...' : 'Enter your name...'} className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none" />
-            </div>
-            <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">{tr.startChallenge}</button>
+          <div className="max-w-2xl mx-auto space-y-6 text-center py-10">
+            <h1 className="text-6xl font-bold text-yellow-400 animate-pulse mb-4">⚔️ GOWIN ⚔️</h1>
+            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="أدخل اسمك..." className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none" />
+            <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">🚀 ابدأ التحدي</button>
           </div>
         )}
 
-        {/* --- قسم الجوائز والتعليمات المحدث المطلوبة --- */}
+        {/* --- تعليمات الدوري والجوائز المطلوبة --- */}
         {activeTab === 'prizes' && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="bg-yellow-500/10 rounded-3xl p-8 border border-yellow-500/30">
               <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🎁 الجوائز والتعليمات</h2>
               <div className="bg-black/40 p-6 rounded-2xl border border-yellow-500/20 mb-6 text-center">
                  <p className="text-2xl font-bold text-white mb-4">{tr.noonCode}</p>
-                 <button onClick={() => {navigator.clipboard.writeText("VTP129"); alert("تم النسخ!");}} className="bg-yellow-500 text-black px-8 py-2 rounded-xl font-bold">نسخ الكود</button>
               </div>
               <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-right whitespace-pre-line text-white/90 leading-relaxed">
-                {tr.leagueInstructions}
+                {tr.instructions}
               </div>
             </div>
           </div>
@@ -342,13 +268,13 @@ function App() {
             {[...players].sort((a, b) => b.points - a.points).map((player, index) => (
               <div key={player.id} className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between">
                 <span>{index + 1}. {player.name}</span>
-                <span className="text-yellow-400 font-bold">{player.points} {tr.points}</span>
+                <span className="text-yellow-400 font-bold">{player.points} نقاط</span>
               </div>
             ))}
           </div>
         )}
 
-        {activeTab === 'live' && <div className="text-center py-20 opacity-50">لا توجد مباريات جارية حالياً</div>}
+        {activeTab === 'live' && <div className="text-center py-20 opacity-50">لا توجد مباريات جارية</div>}
         {activeTab === 'history' && <div className="text-center py-20 opacity-50">السجل فارغ</div>}
         
         {activeTab === 'friends' && (
@@ -357,7 +283,7 @@ function App() {
               {chatMessages.map((m, i) => <div key={i} className="mb-2"><b>{m.name}:</b> {m.text}</div>)}
             </div>
             <div className="flex gap-2">
-              <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} className="flex-1 bg-white/10 p-3 rounded-xl focus:outline-none" placeholder="اكتب رسالة..." />
+              <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} className="flex-1 bg-white/10 p-3 rounded-xl focus:outline-none" placeholder="اكتب..." />
               <button onClick={sendMessage} className="bg-yellow-500 text-black px-6 rounded-xl font-bold">إرسال</button>
             </div>
           </div>
@@ -370,7 +296,7 @@ function App() {
               <h2 className="text-xl font-bold mb-8">{currentQuestions[currentQuestionIndex].question}</h2>
               <div className="grid gap-3">
                 {currentQuestions[currentQuestionIndex].options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl">{opt}</button>
+                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors">{opt}</button>
                 ))}
               </div>
             </div>
