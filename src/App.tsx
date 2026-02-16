@@ -110,7 +110,7 @@ function App() {
               <div className="relative inline-block">
                 <span className="absolute inset-0 bg-yellow-500/20 blur-xl animate-pulse rounded-full"></span>
                 <h2 className="relative text-2xl font-black text-white italic tracking-tighter">
-                   أكبر <span className="text-yellow-400 shadow-yellow-500/50">تحدي رمضاني</span> لعام ٢٠٢٤
+                   أكبر <span className="text-yellow-400 shadow-yellow-500/50">تحدي رمضاني</span> لعام 2026
                 </h2>
               </div>
             </div>
