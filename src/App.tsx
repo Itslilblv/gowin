@@ -140,9 +140,9 @@ function App() {
     if (savedQuestionSet) {
       setCurrentQuestionSet(parseInt(savedQuestionSet));
     }
-  }, []);
+  },
 
-  // Save data
+  Save data
   useEffect(() => {
     if (currentPlayer) {
       localStorage.setItem('gowin_player', JSON.stringify(currentPlayer));
@@ -467,7 +467,6 @@ function App() {
           copyBtn: "نسخ الكود",
           alertCopied: "تم نسخ الكود! استمتع بالتوفير في نون 🌙",
         },
-  }
       
     },
     en: {
