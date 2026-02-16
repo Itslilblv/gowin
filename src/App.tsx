@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-// Questions data (بدون أي تعديل)
+// --- مصفوفة الأسئلة كما هي (لم يتم تغيير أي حرف) ---
 const questionsSets = {
   set1: {
     arabic: [
@@ -24,30 +24,25 @@ function App() {
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
 
-  // --- نظام نغمات من عندي (Audio Context) ---
-  const playSound = (freq: number, type: 'sine' | 'square' | 'triangle' = 'sine', duration: number = 0.1) => {
+  // --- نغمات بسيطة (Beeps) بدلاً من الموسيقى ---
+  const playBeep = (freq: number) => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.value = 0.1;
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
   };
-
-  const playClick = () => playSound(440, 'sine', 0.05); // نغمة زر
-  const playCorrect = () => playSound(880, 'sine', 0.2); // نغمة صح
-  const playWrong = () => playSound(220, 'square', 0.3); // نغمة خطأ
 
   useEffect(() => {
     if (!gameStarted) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) { 
-          playWrong();
+          playBeep(200); // نغمة خطأ/انتهاء وقت
           if (lives > 1) { setLives(l => l - 1); return 15; }
           setGameStarted(false); setActiveTab('leaderboard'); return 15;
         }
@@ -58,15 +53,11 @@ function App() {
   }, [gameStarted, lives]);
 
   const handleAnswer = (index: number) => {
+    playBeep(600); // نغمة ضغط زر
     const correct = questionsSets.set1.arabic[currentQuestionIndex].correct;
-    if (index === correct) {
-      playCorrect();
-      setScore(s => s + 10);
-    } else {
-      playWrong();
-      if (lives > 1) setLives(l => l - 1);
-      else { setGameStarted(false); setActiveTab('leaderboard'); }
-    }
+    if (index === correct) setScore(s => s + 10);
+    else if (lives > 1) setLives(l => l - 1);
+
     if (currentQuestionIndex < questionsSets.set1.arabic.length - 1) {
       setCurrentQuestionIndex(c => c + 1);
       setTimeLeft(15);
@@ -80,43 +71,44 @@ function App() {
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
       <style>{`
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 15s linear infinite; }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 12s linear infinite; }
       `}</style>
 
-      {/* البانر الذهبي المتحرك */}
+      {/* --- 1. البانر الذهبي المتحرك المطلوب --- */}
       <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="animate-marquee text-black font-black text-xs">
-           🎁 كود خصم نون: VTP129 🎁 | 🏆 جوائز نقدية للمربع الذهبي (1-4) 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙
+           🎁 كود نون: VTP129 🎁 | 🏆 جوائز نقدية للمربع الذهبي (1-4) 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙 | كود الخصم: VTP129
         </div>
       </div>
 
-      <header className="relative z-50 pt-14 flex justify-center p-4 text-2xl font-bold text-yellow-400">
-        🏮 GOWIN 🏮
+      <header className="relative z-50 pt-14 flex justify-center p-4">
+        <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
       </header>
 
-      {/* التبويبات بالإيموجيات فقط */}
+      {/* --- 2. التبويبات (إيموجيات فقط بدلاً من الكلام) --- */}
       <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
-        <button onClick={() => { playClick(); setActiveTab('home'); }} className={`p-3 rounded-xl ${activeTab === 'home' ? 'bg-yellow-500' : 'bg-white/10'}`}>🏠</button>
-        <button onClick={() => { playClick(); setActiveTab('leaderboard'); }} className={`p-3 rounded-xl ${activeTab === 'leaderboard' ? 'bg-yellow-500' : 'bg-white/10'}`}>📊</button>
-        <button onClick={() => { playClick(); setActiveTab('live'); }} className={`p-3 rounded-xl ${activeTab === 'live' ? 'bg-yellow-500' : 'bg-white/10'}`}>🔴</button>
-        <button onClick={() => { playClick(); setActiveTab('history'); }} className={`p-3 rounded-xl ${activeTab === 'history' ? 'bg-yellow-500' : 'bg-white/10'}`}>📜</button>
-        <button onClick={() => { playClick(); setActiveTab('friends'); }} className={`p-3 rounded-xl ${activeTab === 'friends' ? 'bg-yellow-500' : 'bg-white/10'}`}>💬</button>
-        <button onClick={() => { playClick(); setActiveTab('prizes'); }} className={`p-3 rounded-xl ${activeTab === 'prizes' ? 'bg-yellow-500' : 'bg-white/10'}`}>🎁</button>
+        <button onClick={() => { playBeep(400); setActiveTab('home'); }} className={`p-3 rounded-xl ${activeTab === 'home' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🏠</button>
+        <button onClick={() => { playBeep(400); setActiveTab('leaderboard'); }} className={`p-3 rounded-xl ${activeTab === 'leaderboard' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>📊</button>
+        <button onClick={() => { playBeep(400); setActiveTab('live'); }} className={`p-3 rounded-xl ${activeTab === 'live' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🔴</button>
+        <button onClick={() => { playBeep(400); setActiveTab('history'); }} className={`p-3 rounded-xl ${activeTab === 'history' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>📜</button>
+        <button onClick={() => { playBeep(400); setActiveTab('friends'); }} className={`p-3 rounded-xl ${activeTab === 'friends' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>💬</button>
+        <button onClick={() => { playBeep(400); setActiveTab('prizes'); }} className={`p-3 rounded-xl ${activeTab === 'prizes' ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>🎁</button>
       </nav>
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
           <div className="max-w-2xl mx-auto text-center py-10 space-y-6">
             <h1 className="text-6xl font-bold text-yellow-400 mb-6">⚔️ GOWIN ⚔️</h1>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="اسمك الكريم..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20 text-center outline-none" />
-            <button onClick={() => { playClick(); setGameStarted(true); setActiveTab('challenge'); }} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">🚀 ابدأ التحدي</button>
+            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="سجل اسمك..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20 text-center outline-none" />
+            <button onClick={() => { playBeep(800); setGameStarted(true); setActiveTab('challenge'); }} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 ابدأ التحدي</button>
           </div>
         )}
 
+        {/* --- 3. تعليمات الدوري الرمضاني المطلوبة (تبويب الهدية) --- */}
         {activeTab === 'prizes' && (
           <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30">
             <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري</h2>
-            <div className="bg-white/5 p-6 rounded-xl text-right whitespace-pre-line text-white/90">
+            <div className="bg-white/5 p-6 rounded-xl text-right whitespace-pre-line text-white/90 leading-relaxed">
                 1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.{"\n"}
                 2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.{"\n"}
                 3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.{"\n"}
@@ -126,14 +118,15 @@ function App() {
           </div>
         )}
 
+        {/* لوحة اللعب كما هي */}
         {activeTab === 'challenge' && gameStarted && (
           <div className="max-w-2xl mx-auto text-center space-y-4">
             <div className="flex justify-between font-bold text-xl px-2"><span>❤️ {lives}</span><span className="text-yellow-400">⏱️ {timeLeft}</span></div>
-            <div className="bg-white/5 p-8 rounded-2xl border border-white/20">
+            <div className="bg-white/5 p-8 rounded-2xl border border-white/20 backdrop-blur-md">
               <h2 className="text-xl font-bold mb-8">{questionsSets.set1.arabic[currentQuestionIndex]?.question}</h2>
               <div className="grid gap-4">
                 {questionsSets.set1.arabic[currentQuestionIndex]?.options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10">{opt}</button>
+                  <button key={i} onClick={() => handleAnswer(i)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-yellow-500 hover:text-black transition-all">{opt}</button>
                 ))}
               </div>
             </div>
@@ -141,8 +134,8 @@ function App() {
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/80 backdrop-blur-md">
-        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold">📷 @_itlulp</a>
+      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/80 backdrop-blur-md border-t border-white/5">
+        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold text-sm">📷 @_itlulp</a>
       </footer>
     </div>
   );
