@@ -6,7 +6,7 @@ const questionsSets = {
     arabic: [
       { id: 1, question: "ما هي عاصمة المملكة العربية السعودية؟", options: ["جدة", "الرياض", "مكة", "الدمام"], correct: 1, points: 10, difficulty: "سهل جداً" },
       { id: 2, question: "كم عدد الكواكب في المجموعة الشمسية؟", options: ["7", "8", "9", "10"], correct: 1, points: 10, difficulty: "سهل جداً" },
-      { id: 3, question: "من هو مؤسس شركة أبل؟", options: ["بيل غيتس", "ستيف جوبز", "مارك زوكربيرغ", "إيلون ماسك"], correct: 1, points: 10, difficulty: "سهل جداً" },
+      { id: 3, question: "من هو مؤسس شركة أبل? ", options: ["بيل غيتس", "ستيف جوبز", "مارك زوكربيرغ", "إيلون ماسك"], correct: 1, points: 10, difficulty: "سهل جداً" },
       { id: 4, question: "ما هو الحيوان الأسرع في العالم؟", options: ["الفهد", "النمر", "الغزال", "صقر"], correct: 0, points: 15, difficulty: "متوسط" },
       { id: 5, question: "كم عدد ألوان قوس قزح؟", options: ["5", "6", "7", "8"], correct: 2, points: 15, difficulty: "متوسط" },
       { id: 6, question: "من فاز بكأس العالم 2018؟", options: ["ألمانيا", "البرازيل", "فرنسا", "كرواتيا"], correct: 2, points: 20, difficulty: "صعب قليلاً" },
@@ -93,8 +93,8 @@ type MatchHistory = {
 };
 
 function App() {
-  // State (أضفت 'prizes' هنا)
-  const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'prizes' | 'challenge'>('home');
+  // State
+  const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'challenge' | 'prizes'>('home');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [playerName, setPlayerName] = useState('');
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -116,7 +116,7 @@ function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const leagueTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load saved data
+  // Persistence
   useEffect(() => {
     const savedPlayer = localStorage.getItem('gowin_player');
     if (savedPlayer) {
@@ -134,7 +134,6 @@ function App() {
     if (savedQuestionSet) setCurrentQuestionSet(parseInt(savedQuestionSet));
   }, []);
 
-  // Save data
   useEffect(() => {
     if (currentPlayer) localStorage.setItem('gowin_player', JSON.stringify(currentPlayer));
     localStorage.setItem('gowin_all_players', JSON.stringify(players));
@@ -152,7 +151,6 @@ function App() {
     return deviceId;
   };
 
-  // Timer for questions
   useEffect(() => {
     if (showResult || !gameStarted) return;
     const timer = setInterval(() => {
@@ -232,59 +230,48 @@ function App() {
     setActiveTab('leaderboard');
   };
 
-  // Translations (أضفت نصوص التعليمات والجوائز هنا)
+  const startLeague = () => {
+    setLeagueStarted(true);
+  };
+
   const t = {
     ar: {
       welcome: "مرحباً بك في Gowin",
-      subtitle: "الدوري الأقوى - 20 لاعب يتنافسون على Golden Goat",
       startChallenge: "🚀 ابدأ التحدي",
       leaderboard: "📊 لوحة المتصدرين",
       live: "🔴 مباشر",
       history: "📜 التاريخ",
       friends: "💬 الأصدقاء",
-      prizes: "🎁 الجوائز والتعليمات",
+      prizes: "🎁 الجوائز",
       points: "نقاط",
       noonCode: "كود خصم نون: VTP129",
-      copy: "نسخ الكود",
+      copy: "نسخ",
       copied: "تم النسخ! 🌙",
-      howToPlay: "🎮 كيف تلعب؟",
       rules: [
-        "أجب على أكبر عدد من الأسئلة لجمع النقاط.",
-        "لديك 5 محاولات (قلوب) فقط في كل جولة.",
-        "لديك 15 ثانية فقط للإجابة على كل سؤال.",
-        "المتصدرون في اللوحة سيتأهلون لدوري النخبة."
-      ],
-      motivation: {
-        start: "🌙 استعد لتحدي المربع الذهبي في ليالي رمضان",
-        league: "🏆 أقوى دوري رمضاني - 4 أبطال فقط للتتويج",
-        leaderboard: "📊 الترتيب يتغير لحظياً.. نافس على الصدارة"
-      }
+        "أجب لجمع النقاط.",
+        "لديك 5 محاولات (قلوب).",
+        "لديك 15 ثانية لكل سؤال.",
+        "المتصدرون يتأهلون للنخبة."
+      ]
     },
     en: {
       welcome: "Welcome to Gowin",
-      subtitle: "The Strongest League - 20 Players Compete for Golden Goat",
       startChallenge: "🚀 Start Challenge",
       leaderboard: "📊 Leaderboard",
       live: "🔴 Live",
       history: "📜 History",
       friends: "💬 Friends",
-      prizes: "🎁 Prizes & Rules",
+      prizes: "🎁 Prizes",
       points: "points",
       noonCode: "Noon Code: VTP129",
-      copy: "Copy Code",
+      copy: "Copy",
       copied: "Copied! 🌙",
-      howToPlay: "🎮 How to Play?",
       rules: [
-        "Answer as many questions as possible to collect points.",
-        "You have only 5 lives per round.",
-        "You have 15 seconds to answer each question.",
-        "Top leaderboard players qualify for the Elite League."
-      ],
-      motivation: {
-        start: "🌙 Get ready for the Golden Square challenge",
-        league: "🏆 Strongest League - Only 4 champions",
-        leaderboard: "📊 Rankings change instantly.. compete for the top"
-      }
+        "Answer to get points.",
+        "You have 5 lives.",
+        "15 seconds per question.",
+        "Top players qualify."
+      ]
     }
   };
 
@@ -297,47 +284,41 @@ function App() {
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
       
-      {/* البانر العلوي */}
-      <div className="fixed top-0 left-0 right-0 z-[100] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center">
-        <div className="whitespace-nowrap animate-marquee flex items-center text-black font-black text-xs uppercase">
-          <span className="mx-8">🎁 استخدم كود نون VTP129 لدعم جوائز الدوري 🎁</span>
+      {/* 2. البانر الذهبي */}
+      <div className="fixed top-0 left-0 right-0 z-[100] overflow-hidden h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 shadow-[0_2px_15px_rgba(234,179,8,0.4)] flex items-center border-b border-yellow-300/30">
+        <div className="whitespace-nowrap animate-marquee flex items-center text-black font-black text-[10px] sm:text-xs uppercase tracking-wider">
+          <span className="mx-8">🎁 مبارك عليكم الشهر: جوائز نقدية لأبطال المربع الذهبي 🎁</span>
           <span className="mx-8">🏆 المراكز (1-4) يستلمون الجوائز عبر الخاص 🏆</span>
           <span className="mx-8">🌙 رمضان يجمعنا في دوري Gowin الأقوى 🌙</span>
         </div>
       </div>
 
-      <header className="relative z-50 pt-12 flex justify-between items-center p-4 bg-black/30">
-        <button onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="px-2 py-1 bg-white/10 rounded-lg text-xs">
+      <header className="relative z-50 pt-12 flex justify-between items-center p-4">
+        <button onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="px-3 py-1 bg-white/10 rounded-lg text-xs">
           {language === 'ar' ? 'EN' : 'ع'}
         </button>
         <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
         <div className="w-8"></div>
       </header>
 
-      {/* Navigation (أضفت Prizes هنا) */}
+      {/* Navigation - أضفت Prizes فقط */}
       <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20 overflow-x-auto no-scrollbar">
-        {[
-          { id: 'home', icon: '🏠', label: tr.welcome.split(' ')[0] },
-          { id: 'leaderboard', icon: '📊', label: 'الترتيب' },
-          { id: 'live', icon: '🔴', label: tr.live },
-          { id: 'history', icon: '📜', label: 'السجل' },
-          { id: 'friends', icon: '💬', label: 'الشات' },
-          { id: 'prizes', icon: '🎁', label: 'الجوائز' },
-        ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-1 px-3 py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-yellow-500 text-black font-bold' : 'bg-white/10 text-white'}`}>
-            <span>{tab.icon}</span>
-            <span className="text-xs">{tab.label}</span>
+        {['home', 'leaderboard', 'live', 'history', 'friends', 'prizes'].map(tab => (
+          <button key={tab} onClick={() => setActiveTab(tab as any)} 
+            className={`px-4 py-2 rounded-xl text-xs transition-all ${activeTab === tab ? 'bg-yellow-500 text-black font-bold' : 'bg-white/10'}`}>
+            {tab === 'prizes' ? tr.prizes : tab.toUpperCase()}
           </button>
         ))}
       </nav>
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
-          <div className="max-w-2xl mx-auto space-y-6 text-center">
-            <h1 className="text-5xl font-bold text-yellow-400 mb-4">⚔️ GOWIN ⚔️</h1>
-            <p className="text-xl text-white/80">{tr.welcome}</p>
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 text-right">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="text-center py-8">
+              <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-clip-text text-transparent animate-pulse mb-4">⚔️ GOWIN ⚔️</h1>
+              <p className="text-white/70">{tr.welcome}</p>
+            </div>
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
               <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)}
                 placeholder="أدخل اسمك..."
                 className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none" />
@@ -349,46 +330,35 @@ function App() {
           </div>
         )}
 
-        {/* التبويب المطلوب: الجوائز والتعليمات */}
+        {/* تبويب الجوائز والتعليمات المضاف */}
         {activeTab === 'prizes' && (
-          <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn">
-            {/* Noon Code Box */}
-            <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-3xl p-8 border border-yellow-500/30 text-center">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-3xl p-6 border border-yellow-500/30 text-center">
               <h2 className="text-2xl font-bold text-yellow-400 mb-4">{tr.prizes}</h2>
-              <div className="bg-black/40 p-6 rounded-2xl border border-yellow-500/20 mb-6">
-                 <p className="text-lg mb-4 text-white">{tr.noonCode}</p>
-                 <button 
-                   onClick={() => { navigator.clipboard.writeText("VTP129"); alert(tr.copied); }}
-                   className="bg-yellow-500 text-black px-8 py-3 rounded-full font-bold text-lg hover:scale-105 transition-transform"
-                 >
-                   {tr.copy}
-                 </button>
+              <div className="bg-black/40 p-4 rounded-xl border border-yellow-500/20 mb-4">
+                <p className="mb-3">{tr.noonCode}</p>
+                <button onClick={() => {navigator.clipboard.writeText("VTP129"); alert(tr.copied);}}
+                  className="bg-yellow-500 text-black px-6 py-2 rounded-lg font-bold">{tr.copy}</button>
               </div>
-              
-              {/* Instructions List */}
-              <div className="text-right space-y-4">
-                <h3 className="text-xl font-bold text-yellow-400 border-b border-white/10 pb-2">{tr.howToPlay}</h3>
-                <ul className="space-y-3">
-                  {tr.rules.map((rule, i) => (
-                    <li key={i} className="flex items-center gap-3 text-white/80 text-sm">
-                      <span className="text-yellow-500">✦</span> {rule}
-                    </li>
-                  ))}
+              <div className="text-right">
+                <h3 className="font-bold text-yellow-400 mb-2">📖 التعليمات:</h3>
+                <ul className="text-sm space-y-2 text-white/80">
+                  {tr.rules.map((r, i) => <li key={i}>• {r}</li>)}
                 </ul>
               </div>
             </div>
           </div>
         )}
 
-        {/* Leaderboard, Live, etc remain as per your original code logic */}
+        {/* بقية التبويبات الأصلية كما هي */}
         {activeTab === 'leaderboard' && (
           <div className="max-w-2xl mx-auto space-y-3">
-             {[...players].sort((a,b)=>b.points-a.points).map((p, i) => (
-               <div key={p.id} className="bg-white/5 p-4 rounded-xl flex justify-between border border-white/10">
-                 <span>{i+1}. {p.name}</span>
-                 <span className="text-yellow-400 font-bold">{p.points} {tr.points}</span>
-               </div>
-             ))}
+            {[...players].sort((a,b)=>b.points-a.points).map((p, i) => (
+              <div key={p.id} className="bg-white/5 p-4 rounded-xl flex justify-between border border-white/10">
+                <span>{i+1}. {p.name}</span>
+                <span className="text-yellow-400 font-bold">{p.points} {tr.points}</span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -414,7 +384,7 @@ function App() {
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/50 backdrop-blur-md border-t border-white/10">
+      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/50 backdrop-blur-md">
         <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold">📷 @_itlulp</a>
       </footer>
     </div>
