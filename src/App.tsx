@@ -93,7 +93,6 @@ type MatchHistory = {
 };
 
 function App() {
-  // State
   const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'challenge' | 'prizes'>('home');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [playerName, setPlayerName] = useState('');
@@ -108,7 +107,7 @@ function App() {
   const [matchHistory, setMatchHistory] = useState<MatchHistory[]>([]);
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [_musicEnabled, _setMusicEnabled] = useState(false);
+  const [_musicEnabled, _setMusicEnabled] = useState(false); 
   const [currentQuestionSet, setCurrentQuestionSet] = useState(0);
   const [leagueStarted, setLeagueStarted] = useState(false);
   const [chatMessages, setChatMessages] = useState<{name: string, text: string, time: string, isMe: boolean}[]>([]);
@@ -116,7 +115,6 @@ function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const leagueTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load saved data
   useEffect(() => {
     const savedPlayer = localStorage.getItem('gowin_player');
     if (savedPlayer) {
@@ -134,7 +132,6 @@ function App() {
     if (savedQuestionSet) setCurrentQuestionSet(parseInt(savedQuestionSet));
   }, []);
 
-  // Save data
   useEffect(() => {
     if (currentPlayer) localStorage.setItem('gowin_player', JSON.stringify(currentPlayer));
     localStorage.setItem('gowin_all_players', JSON.stringify(players));
@@ -234,16 +231,6 @@ function App() {
     setActiveTab('leaderboard');
   };
 
-  const startLeague = () => {
-    const sortedPlayers = [...players].sort((a, b) => b.points - a.points).slice(0, 8);
-    const newMatches: Match[] = [];
-    for (let i = 0; i < 8; i += 2) {
-      newMatches.push({ id: `qf_${i}`, player1: sortedPlayers[i], player2: sortedPlayers[i + 1], score1: 0, score2: 0, round: 1, status: 'live' });
-    }
-    setMatches(newMatches);
-    setLeagueStarted(true);
-  };
-
   const sendMessage = () => {
     if (!chatInput.trim() || !playerName) return;
     const msg = { name: playerName, text: chatInput, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), isMe: true };
@@ -252,8 +239,8 @@ function App() {
   };
 
   const t = {
-    ar: { welcome: "مرحباً بك في Gowin", subtitle: "الدوري الأقوى - 20 لاعب يتنافسون على Golden Goat", startChallenge: "🚀 ابدأ التحدي", leaderboard: "📊 لوحة المتصدرين", live: "🔴 مباشر", history: "📜 التاريخ", friends: "💬 الأصدقاء", prizes: "🎁 الجوائز", points: "نقاط", copied: "تم النسخ! 🌙", noonCode: "كود خصم نون: VTP129", instructions: "1. لديك 5 محاولات.\n2. 15 ثانية لكل سؤال.\n3. اجمع النقاط للتأهل." },
-    en: { welcome: "Welcome to Gowin", subtitle: "The Strongest League - 20 Players", startChallenge: "🚀 Start Challenge", leaderboard: "📊 Leaderboard", live: "🔴 Live", history: "📜 History", friends: "💬 Friends", prizes: "🎁 Prizes", points: "points", copied: "Copied! 🌙", noonCode: "Noon Code: VTP129", instructions: "1. 5 lives only.\n2. 15s per question.\n3. Collect points to rank." }
+    ar: { welcome: "مرحباً بك في Gowin", startChallenge: "🚀 ابدأ التحدي", leaderboard: "📊 لوحة المتصدرين", live: "🔴 مباشر", history: "📜 التاريخ", friends: "💬 الأصدقاء", prizes: "🎁 الجوائز", points: "نقاط" },
+    en: { welcome: "Welcome to Gowin", startChallenge: "🚀 Start Challenge", leaderboard: "📊 Leaderboard", live: "🔴 Live", history: "📜 History", friends: "💬 Friends", prizes: "🎁 Prizes", points: "points" }
   };
   const tr = t[language];
   const currentQuestions = language === 'ar' ? questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].arabic : questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].english;
@@ -271,7 +258,7 @@ function App() {
         </div>
       </div>
 
-      <header className="relative z-50 pt-12 flex justify-between items-center p-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
+      <header className="relative z-50 pt-12 flex justify-between items-center p-4">
         <button onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} className="px-3 py-1 bg-white/10 rounded-lg text-xs"> {language === 'ar' ? 'EN' : 'ع'} </button>
         <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
         <div className="w-8"></div>
@@ -289,95 +276,53 @@ function App() {
         {activeTab === 'home' && (
           <div className="max-w-2xl mx-auto space-y-6 text-center">
             <h1 className="text-6xl font-bold text-yellow-400 animate-pulse">⚔️ GOWIN ⚔️</h1>
-            <p className="text-xl">{tr.welcome}</p>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="أدخل اسمك..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20 focus:outline-none" />
-            <button onClick={startChallenge} className="w-full py-4 rounded-xl bg-yellow-500 text-black font-bold text-xl">{tr.startChallenge}</button>
+            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="أدخل اسمك..." className="w-full bg-white/10 p-4 rounded-xl border border-white/20" />
+            <button onClick={startChallenge} className="w-full py-4 rounded-xl bg-yellow-500 text-black font-bold">{tr.startChallenge}</button>
           </div>
         )}
 
         {activeTab === 'prizes' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-yellow-500/10 p-6 rounded-3xl border border-yellow-500/30 text-center">
-              <h2 className="text-2xl font-bold text-yellow-400 mb-4">{tr.prizes}</h2>
-              <div className="bg-black/40 p-4 rounded-xl border border-yellow-500/20 mb-4">
-                <p className="text-lg mb-4">{tr.noonCode}</p>
-                <button onClick={() => {navigator.clipboard.writeText("VTP129"); alert(tr.copied);}} className="bg-yellow-500 text-black px-6 py-2 rounded-lg font-bold">نسخ الكود</button>
-              </div>
-              <div className="text-right bg-white/5 p-4 rounded-xl">
-                <h3 className="text-yellow-400 mb-2 font-bold">📖 التعليمات:</h3>
-                <p className="whitespace-pre-line text-sm text-white/80">{tr.instructions}</p>
-              </div>
-            </div>
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+             <div className="bg-yellow-500/20 p-6 rounded-2xl border border-yellow-500/40">
+                <h2 className="text-2xl font-bold text-yellow-400 mb-4">كود خصم نون: VTP129</h2>
+                <p className="text-sm opacity-80">استخدم الكود للحصول على خصم خاص!</p>
+             </div>
           </div>
         )}
 
         {activeTab === 'leaderboard' && (
-          <div className="max-w-2xl mx-auto space-y-3">
+          <div className="max-w-2xl mx-auto space-y-2">
             {[...players].sort((a,b)=>b.points-a.points).map((p, i) => (
-              <div key={p.id} className="bg-white/5 p-4 rounded-xl flex justify-between border border-white/10">
+              <div key={p.id} className="bg-white/5 p-4 rounded-xl flex justify-between">
                 <span>{i+1}. {p.name}</span>
-                <span className="text-yellow-400 font-bold">{p.points} {tr.points}</span>
+                <span className="text-yellow-400">{p.points} {tr.points}</span>
               </div>
             ))}
           </div>
         )}
 
-        {activeTab === 'live' && (
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-bold mb-4 text-center">🔴 المباريات المباشرة</h2>
-            {matches.length > 0 ? matches.map(m => (
-              <div key={m.id} className="bg-white/5 p-4 rounded-xl mb-3 flex justify-around items-center border border-white/10">
-                <span>{m.player1.name}</span>
-                <span className="text-yellow-400 font-bold">{m.score1} - {m.score2}</span>
-                <span>{m.player2.name}</span>
-              </div>
-            )) : <p className="text-center opacity-50">لا توجد مباريات جارية حالياً</p>}
-          </div>
-        )}
-
-        {activeTab === 'history' && (
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-bold mb-4 text-center">📜 سجل التحديات</h2>
-            {matchHistory.map((h, i) => (
-              <div key={i} className="bg-white/5 p-3 rounded-lg mb-2 flex justify-between text-sm border border-white/5">
-                <span>{h.player1} vs {h.player2}</span>
-                <span className="text-green-400">الفائز: {h.winner}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
+        {activeTab === 'live' && <div className="text-center opacity-50">لا توجد مباريات مباشرة حالياً</div>}
+        {activeTab === 'history' && <div className="text-center opacity-50">سجل المباريات فارغ</div>}
         {activeTab === 'friends' && (
-          <div className="max-w-2xl mx-auto flex flex-col h-[60vh]">
-            <div className="flex-1 overflow-y-auto space-y-2 p-2 bg-black/20 rounded-xl mb-4">
-              {chatMessages.map((m, i) => (
-                <div key={i} className={`p-2 rounded-lg max-w-[80%] ${m.isMe ? 'bg-yellow-500/20 mr-auto' : 'bg-white/5 ml-auto'}`}>
-                  <p className="text-[10px] text-yellow-400">{m.name}</p>
-                  <p className="text-sm">{m.text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} placeholder="اكتب رسالة..." className="flex-1 bg-white/10 p-3 rounded-xl focus:outline-none" />
-              <button onClick={sendMessage} className="bg-yellow-500 text-black px-4 rounded-xl font-bold">إرسال</button>
-            </div>
-          </div>
+           <div className="max-w-2xl mx-auto">
+             <div className="h-64 bg-black/20 rounded-xl mb-4 overflow-y-auto p-4">
+               {chatMessages.map((m, i) => <div key={i} className="mb-2"><b>{m.name}:</b> {m.text}</div>)}
+             </div>
+             <div className="flex gap-2">
+               <input value={chatInput} onChange={e => setChatInput(e.target.value)} className="flex-1 bg-white/10 p-2 rounded-lg" />
+               <button onClick={sendMessage} className="bg-yellow-500 text-black px-4 rounded-lg">إرسال</button>
+             </div>
+           </div>
         )}
 
         {activeTab === 'challenge' && gameStarted && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex justify-between font-bold">
-              <span className="text-red-500">❤️ {lives}</span>
-              <span className="text-yellow-400">⏱️ {timeLeft}s</span>
-              <span className="text-green-400">⭐ {score}</span>
-            </div>
-            <div className="bg-white/5 p-8 rounded-2xl border border-white/10 text-center">
-              <h2 className="text-xl font-bold mb-8">{currentQuestions[currentQuestionIndex].question}</h2>
-              <div className="grid gap-3">
-                {currentQuestions[currentQuestionIndex].options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} disabled={selectedAnswer !== null} className={`p-4 rounded-xl border transition-all ${selectedAnswer === i ? 'bg-yellow-500 text-black' : 'bg-white/5'}`}>{opt}</button>
-                ))}
-              </div>
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="flex justify-between mb-4"><span>❤️ {lives}</span><span>⏱️ {timeLeft}</span></div>
+            <h2 className="text-xl mb-4">{currentQuestions[currentQuestionIndex].question}</h2>
+            <div className="grid gap-2">
+              {currentQuestions[currentQuestionIndex].options.map((opt, i) => (
+                <button key={i} onClick={() => handleAnswer(i)} className="p-3 bg-white/5 rounded-lg border border-white/10">{opt}</button>
+              ))}
             </div>
           </div>
         )}
