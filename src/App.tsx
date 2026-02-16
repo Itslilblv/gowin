@@ -71,7 +71,7 @@ function App() {
       <div className="absolute top-10 left-8 text-4xl opacity-40 animate-bounce">🏮</div>
 
       {/* البنـر الذهبي */}
-      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30 shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="whitespace-nowrap animate-[marquee_15s_linear_infinite] text-black font-black text-xs uppercase">
           <span className="mx-8">🎁 كود نون: VTP129 🎁</span>
           <span className="mx-8">🏆 هدايا للمربع الذهبي (1-4) 🏆</span>
@@ -79,7 +79,7 @@ function App() {
         </div>
       </div>
 
-      {/* زر اللغة تحت البنر يسار */}
+      {/* زر اللغة */}
       <div className="fixed top-12 left-4 z-[110]">
         <button 
           onClick={() => setLanguage(language === 'arabic' ? 'english' : 'arabic')}
@@ -90,7 +90,7 @@ function App() {
       </div>
 
       <header className="relative z-50 pt-14 flex justify-center p-4">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">🏮 GOWIN 🏮</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent italic">🏮 GOWIN 🏮</h1>
       </header>
 
       <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
@@ -103,17 +103,29 @@ function App() {
 
       <main className="relative z-10 container mx-auto p-4 pb-24 text-center">
         {activeTab === 'home' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-6xl font-bold text-yellow-400 py-8 drop-shadow-lg">⚔️ GOWIN ⚔️</h1>
+          <div className="max-w-2xl mx-auto space-y-8">
+            {/* الشعار المحدث بالاسم المنور والنابض */}
+            <div>
+              <h1 className="text-6xl font-black text-yellow-400 py-4 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)] animate-pulse">⚔️ GOWIN ⚔️</h1>
+              <div className="relative inline-block">
+                <span className="absolute inset-0 bg-yellow-500/20 blur-xl animate-pulse rounded-full"></span>
+                <h2 className="relative text-2xl font-black text-white italic tracking-tighter">
+                   أكبر <span className="text-yellow-400 shadow-yellow-500/50">تحدي رمضاني</span> لعام ٢٠٢٤
+                </h2>
+              </div>
+            </div>
+
             <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
-              <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder={language === 'arabic' ? "سجل اسمك..." : "Enter name..."} className="w-full bg-white/10 p-4 rounded-xl text-center text-xl outline-none mb-4" />
-              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 {language === 'arabic' ? "دخول البطولة" : "JOIN LEAGUE"}</button>
+              <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder={language === 'arabic' ? "سجل اسمك في التحدي..." : "Join the challenge..."} className="w-full bg-white/10 p-4 rounded-xl text-center text-xl outline-none mb-4" />
+              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 {language === 'arabic' ? "دخول التحدي" : "JOIN CHALLENGE"}</button>
               <p className="mt-2 text-yellow-400 font-bold">المقاعد المتاحة: {20 - players.length} / 20</p>
             </div>
-            <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-[0_0_30px_rgba(234,179,8,0.3)]">
+
+            {/* الكرت الذهبي النابض */}
+            <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-[pulse_3s_infinite] transition-all">
               <h2 className="text-2xl font-black text-yellow-400 uppercase tracking-widest">The Golden Goat</h2>
-              <div className="mt-4 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-                <p className="text-3xl font-bold text-white uppercase tracking-wider">
+              <div className="mt-4 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 shadow-[inset_0_0_15px_rgba(234,179,8,0.1)]">
+                <p className="text-3xl font-bold text-white uppercase tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
                   {leagueWinner ? `🐐 ${leagueWinner} 🐐` : "⏳ بانتظار بطل الدوري..."}
                 </p>
               </div>
@@ -121,10 +133,11 @@ function App() {
           </div>
         )}
 
+        {/* باقي التبويبات بدون تغيير */}
         {activeTab === 'leaderboard' && (
-          <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-yellow-400 mb-6 font-sans">قائمة الترتيب</h2>
-            <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden text-right">
+          <div className="max-w-md mx-auto text-right">
+            <h2 className="text-2xl font-bold text-yellow-400 mb-6">قائمة الترتيب</h2>
+            <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-white/10 text-yellow-400">
                   <tr><th className="p-3">#</th><th className="p-3">الاسم</th><th className="p-3">اللقب</th></tr>
@@ -143,10 +156,9 @@ function App() {
           </div>
         )}
 
-        {/* تعديل قائمة اللاعبين النشطين (الإضافة الوحيدة) */}
         {activeTab === 'friends' && (
           <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-blue-400 mb-6 font-sans">اللاعبين النشطين</h2>
+            <h2 className="text-2xl font-bold text-blue-400 mb-6">اللاعبين النشطين</h2>
             <div className="space-y-3 px-2">
               {players.length > 0 ? players.map((p) => (
                 <div key={p.id} className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center backdrop-blur-sm">
@@ -167,7 +179,7 @@ function App() {
                 </div>
               )) : (
                 <div className="py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                  <p className="text-white/20 italic font-sans">لا يوجد لاعبين متصلين حالياً.. كن الأول!</p>
+                  <p className="text-white/20 italic font-sans">لا يوجد لاعبين متصلين حالياً..</p>
                 </div>
               )}
             </div>
@@ -185,10 +197,10 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'live' && <div className="py-20 text-white/40 italic font-sans font-bold">🔴 جاري تحديث المواجهات الحية...</div>}
-        {activeTab === 'history' && <div className="py-20 text-white/20 italic font-sans font-bold">📜 سجل الأبطال فارغ حالياً</div>}
+        {activeTab === 'live' && <div className="py-20 text-white/40 italic">🔴 جاري تحديث المواجهات الحية...</div>}
+        {activeTab === 'history' && <div className="py-20 text-white/20 italic">📜 سجل الأبطال فارغ حالياً</div>}
         {activeTab === 'prizes' && (
-          <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30 text-right font-bold space-y-4 font-sans">
+          <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30 text-right font-bold space-y-4">
             <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 الجوائز والقوانين</h2>
             <p>1. الدوري ينطلق عند اكتمال 20 لاعباً.</p>
             <p>2. بطل الدوري يتوج منفرداً في كرت الـ Goat.</p>
@@ -198,8 +210,8 @@ function App() {
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/40 backdrop-blur-md">
-        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold font-sans">📷 @_itlulp</a>
+      <footer className="fixed bottom-0 left-0 right-0 p-4 text-center bg-black/40 backdrop-blur-md z-50">
+        <a href="https://instagram.com/_itlulp" target="_blank" className="text-pink-400 font-bold">📷 @_itlulp</a>
       </footer>
       <style>{` @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } } `}</style>
     </div>
