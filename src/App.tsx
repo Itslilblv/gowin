@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-// مصفوفات الأسئلة كما هي لم يتم لمسها
+// Questions data (لم يتم تعديلها)
 const questionsSets = {
   set1: {
     arabic: [
@@ -59,17 +59,20 @@ const questionsSets = {
 };
 
 type Player = { id: string; name: string; avatar: string; points: number; lives: number; isWinner: boolean; joinedAt: Date; deviceId: string; };
+type MatchHistory = { id: string; player1: string; player2: string; score1: number; score2: number; winner: string; round: string; date: Date; };
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'leaderboard' | 'live' | 'history' | 'friends' | 'challenge' | 'prizes'>('home');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [playerName, setPlayerName] = useState('');
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [matchHistory, setMatchHistory] = useState<MatchHistory[]>([]);
   const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(15);
   const [currentQuestionSet, setCurrentQuestionSet] = useState(0);
@@ -77,33 +80,31 @@ function App() {
   const [chatInput, setChatInput] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // --- الموسيقى الرمضانية المطلوبة ---
   useEffect(() => {
-    const musicUrl = 'https://www.arabic-keyboard.org/mp3/ramadan-gana.mp3';
-    const initMusic = () => {
-      if (!audioRef.current) {
-        audioRef.current = new Audio(musicUrl);
-        audioRef.current.loop = true;
-        audioRef.current.volume = 0.4;
-        audioRef.current.play().catch(() => {});
-      }
-      window.removeEventListener('click', initMusic);
-      window.removeEventListener('touchstart', initMusic);
-    };
-    window.addEventListener('click', initMusic);
-    window.addEventListener('touchstart', initMusic);
-    return () => {
-      window.removeEventListener('click', initMusic);
-      window.removeEventListener('touchstart', initMusic);
-    };
-  }, []);
-
-  useEffect(() => {
+    const savedPlayer = localStorage.getItem('gowin_player');
+    if (savedPlayer) { const p = JSON.parse(savedPlayer); setCurrentPlayer(p); setPlayerName(p.name); }
     const savedPlayers = localStorage.getItem('gowin_all_players');
     if (savedPlayers) setPlayers(JSON.parse(savedPlayers));
   }, []);
 
-  // منطق اللعبة كما هو
+  // --- التعديل المطلوب: الموسيقى عند لمس الشاشة ---
+  useEffect(() => {
+    const musicUrl = 'https://www.arabic-keyboard.org/mp3/ramadan-gana.mp3';
+    const playMusic = () => {
+      if (!audioRef.current) {
+        audioRef.current = new Audio(musicUrl);
+        audioRef.current.loop = true;
+        audioRef.current.play();
+      }
+    };
+    window.addEventListener('touchstart', playMusic);
+    window.addEventListener('mousedown', playMusic);
+    return () => {
+      window.removeEventListener('touchstart', playMusic);
+      window.removeEventListener('mousedown', playMusic);
+    };
+  }, []);
+
   useEffect(() => {
     if (showResult || !gameStarted) return;
     const timer = setInterval(() => {
@@ -146,32 +147,28 @@ function App() {
     }, 300);
   };
 
-  const endChallenge = () => {
-    setGameStarted(false);
-    setActiveTab('leaderboard');
-  };
+  const endChallenge = () => { setGameStarted(false); setActiveTab('leaderboard'); };
 
-  const tr = {
-    ar: {
-      noonBanner: "🎁 كود خصم نون: VTP129 🎁 | 🏆 جوائز نقدية للمربع الذهبي (1-4) 🏆 | 🌙 رمضان كريم 🌙",
-      rules: "🏆 تعليمات الدوري الرمضاني:\n1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.\n2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.\n3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.\n4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.\n5. كود الخصم VTP129 متاح للجميع للاستخدام في نون."
-    }
-  }['ar'];
+  const sendMessage = () => {
+    if (!chatInput.trim() || !playerName) return;
+    const msg = { name: playerName, text: chatInput, time: new Date().toLocaleTimeString(), isMe: true };
+    setChatMessages(prev => [...prev, msg]);
+    setChatInput('');
+  };
 
   const currentQuestions = language === 'ar' ? questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].arabic : questionsSets[`set${currentQuestionSet + 1}` as keyof typeof questionsSets].english;
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
+      {/* --- التعديل المطلوب: حركة البانر الذهبي --- */}
       <style>{`
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 12s linear infinite; }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 15s linear infinite; }
       `}</style>
 
-      {/* --- البانر الذهبي المتحرك المطلوب --- */}
-      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center border-b border-yellow-300/30 overflow-hidden">
+      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="animate-marquee text-black font-black text-xs">
-          <span className="mx-10">{tr.noonBanner}</span>
-          <span className="mx-10">{tr.noonBanner}</span>
+           🎁 كود خصم نون: VTP129 🎁 | 🏆 جوائز نقدية للمربع الذهبي (1-4) 🏆 | 🌙 رمضان يجمعنا في دوري Gowin 🌙
         </div>
       </div>
 
@@ -179,44 +176,42 @@ function App() {
         <h1 className="text-2xl font-bold text-yellow-400">🏮 GOWIN 🏮</h1>
       </header>
 
-      {/* --- التبويبات بالإيموجيات فقط --- */}
-      <nav className="relative z-50 flex justify-center gap-1 p-4 bg-black/20">
-        {[
-          { id: 'home', icon: '🏠' },
-          { id: 'leaderboard', icon: '📊' },
-          { id: 'live', icon: '🔴' },
-          { id: 'history', icon: '📜' },
-          { id: 'friends', icon: '💬' },
-          { id: 'prizes', icon: '🎁' },
-        ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`p-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-yellow-500 scale-110' : 'bg-white/10'}`}>
-            <span className="text-xl">{tab.icon}</span>
-          </button>
-        ))}
+      {/* --- التعديل المطلوب: التبويبات إيموجيات فقط --- */}
+      <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20">
+        <button onClick={() => setActiveTab('home')} className={`p-3 rounded-xl ${activeTab === 'home' ? 'bg-yellow-500' : 'bg-white/10'}`}>🏠</button>
+        <button onClick={() => setActiveTab('leaderboard')} className={`p-3 rounded-xl ${activeTab === 'leaderboard' ? 'bg-yellow-500' : 'bg-white/10'}`}>📊</button>
+        <button onClick={() => setActiveTab('live')} className={`p-3 rounded-xl ${activeTab === 'live' ? 'bg-yellow-500' : 'bg-white/10'}`}>🔴</button>
+        <button onClick={() => setActiveTab('history')} className={`p-3 rounded-xl ${activeTab === 'history' ? 'bg-yellow-500' : 'bg-white/10'}`}>📜</button>
+        <button onClick={() => setActiveTab('friends')} className={`p-3 rounded-xl ${activeTab === 'friends' ? 'bg-yellow-500' : 'bg-white/10'}`}>💬</button>
+        <button onClick={() => setActiveTab('prizes')} className={`p-3 rounded-xl ${activeTab === 'prizes' ? 'bg-yellow-500' : 'bg-white/10'}`}>🎁</button>
       </nav>
 
       <main className="relative z-10 container mx-auto p-4 pb-24">
         {activeTab === 'home' && (
           <div className="max-w-2xl mx-auto space-y-6 text-center py-10">
             <h1 className="text-6xl font-bold text-yellow-400 mb-6">⚔️ GOWIN ⚔️</h1>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="اسمك الكريم..." className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none text-center" />
+            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="سجل اسمك..." className="w-full bg-white/10 text-white rounded-xl px-4 py-3 border border-white/20 focus:outline-none text-center" />
             <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">🚀 ابدأ التحدي</button>
           </div>
         )}
 
-        {/* --- التعليمات والجوائز المطلوبة --- */}
+        {/* --- التعديل المطلوب: تعليمات الدوري بدلاً من الجوائز --- */}
         {activeTab === 'prizes' && (
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="bg-yellow-500/10 rounded-3xl p-8 border border-yellow-500/30">
               <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 تعليمات الدوري</h2>
               <div className="bg-white/5 p-6 rounded-xl border border-white/10 text-right whitespace-pre-line text-white/90 leading-relaxed">
-                {tr.rules}
+                1. المسابقة تضم 20 لاعباً فقط بنظام النقاط.{"\n"}
+                2. يتأهل أفضل 8 لاعبين إلى دور المجموعات.{"\n"}
+                3. أصحاب المراكز (1-4) يحصلون على جوائز نقدية فورية.{"\n"}
+                4. كل لاعب لديه 5 محاولات (قلوب) للإجابة.{"\n"}
+                5. كود الخصم VTP129 متاح للجميع للاستخدام في نون.
               </div>
             </div>
           </div>
         )}
 
-        {/* باقي التبويبات واللعبة كما هي تماماً */}
+        {/* باقي الكود الأصلي كما هو */}
         {activeTab === 'challenge' && gameStarted && (
           <div className="max-w-2xl mx-auto text-center">
             <div className="flex justify-between mb-4 font-bold text-xl px-2"><span>❤️ {lives}</span><span className="text-yellow-400">⏱️ {timeLeft}</span></div>
