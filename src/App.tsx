@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// الأسئلة (عربي رمضاني | إنجليزي عام)
 const questionsSets = {
   set1: {
     arabic: [
@@ -15,29 +14,16 @@ const questionsSets = {
   set2: {
     arabic: [
       { id: 1, question: "ما هي الصلاة التي تصلى جماعة في ليالي رمضان فقط؟", options: ["الوتر", "التراويح", "الضحى", "الكسوف"], correct: 1, points: 15 },
-      { id: 2, question: "كم عدد سنوات نزول القرآن الكريم على النبي ﷺ؟", options: ["13 سنة", "23 سنة", "33 سنة", "10 سنوات"], correct: 1, points: 20 }
+      { id: 2, question: "كم عدد سنوات نزول القرآن الكريم؟", options: ["13 سنة", "23 سنة", "33 سنة", "10 سنوات"], correct: 1, points: 20 }
     ],
     english: [
       { id: 1, question: "Who painted the 'Mona Lisa'?", options: ["Picasso", "Van Gogh", "Da Vinci", "Dalí"], correct: 2, points: 15 },
       { id: 2, question: "What is the largest planet in our solar system?", options: ["Earth", "Mars", "Jupiter", "Saturn"], correct: 2, points: 15 }
     ]
-  },
-  set3: {
-    arabic: [
-      { id: 1, question: "أي غزوة وقعت في السابع عشر من رمضان؟", options: ["غزوة أحد", "غزوة بدر", "غزوة الخندق", "فتح مكة"], correct: 1, points: 20 },
-      { id: 2, question: "ما هو اللقب الذي يطلق على مكة المكرمة والمدينة المنورة؟", options: ["الحرمين الشريفين", "المقدستين", "المنورتين", "القبلتين"], correct: 0, points: 15 }
-    ],
-    english: [
-      { id: 1, question: "Which element has the chemical symbol 'O'?", options: ["Gold", "Oxygen", "Iron", "Silver"], correct: 1, points: 10 },
-      { id: 2, question: "Which country won the FIFA World Cup 2022?", options: ["France", "Brazil", "Argentina", "Croatia"], correct: 2, points: 15 }
-    ]
   }
 };
 
-const titles = [
-  "الزعيم", "العميد", "الملكي", "الليث", "الفارس", "الصقر", "العالمي", "الممتاز", "المحترف", "المثابر",
-  "المقاتل", "الذيب", "الجندي", "البارع", "الذكي", "الهداف", "القناص", "المبدع", "المتألق", "الناشئ"
-];
+const titles = ["الزعيم", "العميد", "الملكي", "الليث", "الفارس", "الصقر", "العالمي", "الممتاز", "المحترف", "المثابر", "المقاتل", "الذيب", "الجندي", "البارع", "الذكي", "الهداف", "القناص", "المبدع", "المتألق", "الناشئ"];
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -47,8 +33,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState('set1');
-  const [leagueWinner, setLeagueWinner] = useState(null); 
-  const [history, setHistory] = useState([]); // سجل الأبطال
+  const [leagueWinner, setLeagueWinner] = useState(null);
 
   const runLeague = (allPlayers) => {
     let currentRound = [...allPlayers];
@@ -62,13 +47,10 @@ function App() {
       }
       currentRound = nextRound;
     }
-    const winner = currentRound[0].name;
-    setLeagueWinner(winner);
-    setHistory(prev => [{ name: winner, date: new Date().toLocaleDateString('ar-SA') }, ...prev]);
-
+    setLeagueWinner(currentRound[0].name);
     setTimeout(() => {
       setPlayers([]);
-      setCurrentSet(prev => prev === 'set1' ? 'set2' : prev === 'set2' ? 'set3' : 'set1');
+      setCurrentSet(prev => prev === 'set1' ? 'set2' : 'set1');
     }, 15000);
   };
 
@@ -84,12 +66,12 @@ function App() {
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
-      {/* الخلفية والبانر */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
       <div className="absolute top-20 right-10 text-6xl opacity-20 animate-pulse">🌙</div>
       <div className="absolute top-10 left-8 text-4xl opacity-40 animate-bounce">🏮</div>
 
-      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
+      {/* البنـر */}
+      <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30 shadow-lg">
         <div className="whitespace-nowrap animate-[marquee_15s_linear_infinite] text-black font-black text-xs uppercase">
           <span className="mx-8">🎁 كود نون: VTP129 🎁</span>
           <span className="mx-8">🏆 هدايا للمربع الذهبي (1-4) 🏆</span>
@@ -97,7 +79,17 @@ function App() {
         </div>
       </div>
 
-      <header className="relative z-50 pt-12 flex justify-center p-4">
+      {/* زر اللغة تحت البنر يسار */}
+      <div className="fixed top-12 left-4 z-[110]">
+        <button 
+          onClick={() => setLanguage(language === 'arabic' ? 'english' : 'arabic')}
+          className="bg-yellow-500/20 border border-yellow-500/40 px-3 py-1 rounded-lg text-[10px] font-bold text-yellow-400 backdrop-blur-md"
+        >
+          {language === 'arabic' ? 'EN' : 'AR'}
+        </button>
+      </div>
+
+      <header className="relative z-50 pt-14 flex justify-center p-4">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">🏮 GOWIN 🏮</h1>
       </header>
 
@@ -114,63 +106,28 @@ function App() {
           <div className="max-w-2xl mx-auto space-y-6">
             <h1 className="text-6xl font-bold text-yellow-400 py-8 drop-shadow-lg">⚔️ GOWIN ⚔️</h1>
             <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
-              <div className="flex justify-center gap-4 mb-4">
-                <button onClick={() => setLanguage('arabic')} className={`px-4 py-1 rounded-full text-xs font-bold transition-all ${language === 'arabic' ? 'bg-yellow-500 text-black' : 'bg-white/10'}`}>ARABIC</button>
-                <button onClick={() => setLanguage('english')} className={`px-4 py-1 rounded-full text-xs font-bold transition-all ${language === 'english' ? 'bg-yellow-500 text-black' : 'bg-white/10'}`}>ENGLISH</button>
-              </div>
               <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder={language === 'arabic' ? "سجل اسمك..." : "Enter name..."} className="w-full bg-white/10 p-4 rounded-xl text-center text-xl outline-none mb-4" />
-              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black">🚀 {language === 'arabic' ? "دخول البطولة" : "JOIN LEAGUE"}</button>
-              <p className="mt-2 text-yellow-400 font-bold">Slots: {20 - players.length} / 20</p>
+              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 {language === 'arabic' ? "دخول البطولة" : "JOIN LEAGUE"}</button>
+              <p className="mt-2 text-yellow-400 font-bold">المقاعد المتاحة: {20 - players.length} / 20</p>
             </div>
-            <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-2xl">
-              <h2 className="text-2xl font-black text-yellow-400 uppercase">The Golden Goat</h2>
-              <p className="text-3xl mt-4 font-bold text-white uppercase">{leagueWinner ? `🐐 ${leagueWinner} 🐐` : "⏳ Waiting..."}</p>
-            </div>
-          </div>
-        )}
-
-        {/* إعادة تبويب المباشر 🔴 بتصميم الجدول */}
-        {activeTab === 'live' && (
-          <div className="max-w-md mx-auto space-y-4">
-            <h2 className="text-2xl font-bold text-red-500 animate-pulse">🔴 المواجهات الحية</h2>
-            <div className="bg-black/40 p-4 rounded-2xl border border-red-900/20">
-              {players.length > 1 ? (
-                <div className="space-y-3">
-                  {Array.from({ length: Math.floor(players.length / 2) }).map((_, i) => (
-                    <div key={i} className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
-                      <span className="font-bold text-sm">{players[i*2].name}</span>
-                      <span className="text-yellow-500 font-black text-xs italic">VS</span>
-                      <span className="font-bold text-sm">{players[i*2+1].name}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : <p className="text-white/40 py-10 italic">بانتظار اكتمال اللاعبين لبدء القرعة...</p>}
+            {/* الكرت الذهبي (عربي دائماً) */}
+            <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-[0_0_30px_rgba(234,179,8,0.3)]">
+              <h2 className="text-2xl font-black text-yellow-400 uppercase tracking-widest">The Golden Goat</h2>
+              <div className="mt-4 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
+                <p className="text-3xl font-bold text-white uppercase tracking-wider">
+                  {leagueWinner ? `🐐 ${leagueWinner} 🐐` : "⏳ بانتظار بطل الدوري..."}
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* إعادة تبويب التاريخ 📜 */}
-        {activeTab === 'history' && (
-          <div className="max-w-md mx-auto space-y-4">
-            <h2 className="text-2xl font-bold text-purple-400">📜 سجل الأبطال</h2>
-            <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-              {history.length > 0 ? history.map((h, i) => (
-                <div key={i} className="flex justify-between p-4 border-b border-white/5 bg-white/5">
-                  <span className="font-bold">👑 {h.name}</span>
-                  <span className="text-xs text-white/40">{h.date}</span>
-                </div>
-              )) : <div className="py-20 text-white/20 italic">لا توجد بطولات مسجلة بعد</div>}
-            </div>
-          </div>
-        )}
-
-        {/* باقي التبويبات (Leaderboard, Friends, Prizes, Challenge) كما هي */}
         {activeTab === 'leaderboard' && (
           <div className="max-w-md mx-auto">
             <h2 className="text-2xl font-bold text-yellow-400 mb-6">قائمة الترتيب</h2>
             <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden text-right">
-              <table className="w-full">
-                <thead className="bg-white/10 text-yellow-400 text-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-yellow-400">
                   <tr><th className="p-3">#</th><th className="p-3">الاسم</th><th className="p-3">اللقب</th></tr>
                 </thead>
                 <tbody>
@@ -212,6 +169,8 @@ function App() {
           </div>
         )}
 
+        {activeTab === 'live' && <div className="py-20 text-white/40 italic">🔴 جاري تحديث المواجهات الحية...</div>}
+        {activeTab === 'history' && <div className="py-20 text-white/20 italic">📜 سجل الأبطال فارغ حالياً</div>}
         {activeTab === 'prizes' && (
           <div className="max-w-2xl mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/30 text-right font-bold space-y-4">
             <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">🏆 الجوائز والقوانين</h2>
