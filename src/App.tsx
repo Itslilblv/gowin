@@ -142,6 +142,8 @@ function App() {
     }
   }, []);
 
+  const [activeTab, setActiveTab] = useState('leaderboard');
+
   // Save data
   useEffect(() => {
     if (currentPlayer) {
@@ -459,7 +461,13 @@ function App() {
           start: "🌙 استعد لتحدي المربع الذهبي في ليالي رمضان",
           league: "🏆 أقوى دوري رمضاني - 4 أبطال فقط للتتويج",
           leaderboard: "📊 الترتيب يتغير لحظياً.. نافس على الصدارة"
-        }
+            prizesTab: "الجوائز والتعليمات ✨",
+      howToPlayTitle: "كيف تلعب وتفوز؟ 🎮",
+      prizesTitle: "جوائز بانتظارك 🎁",
+      noonCoupon: "خصم نون الحصري: VTP129",
+      copyBtn: "نسخ الكود",
+      alertCopied: "تم نسخ الكود! استمتع بالتوفير في نون 🌙",
+  }
       
     },
     en: {
@@ -613,7 +621,35 @@ function App() {
                 <p className="text-xs text-white/60">{tr.stats.rounds}</p>
               </div>
             </div>
+{/* Prizes Tab - قسم الجوائز وكود نون VTP129 */}
+{activeTab === 'prizes' && (
+  <div className="max-w-2xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+    <div className="bg-black/40 backdrop-blur-md border border-yellow-500/20 p-8 rounded-3xl text-right shadow-2xl">
+      <h2 className="text-2xl font-bold text-yellow-500 mb-4">{tr.howToPlayTitle}</h2>
+      <p className="text-gray-300 mb-8 leading-relaxed">
+        استعد للمنافسة! اجمع النقاط لتدخل المربع الذهبي (المراكز 1-4) وتفوز بجوائزنا القيمة لهذا الموسم.
+      </p>
 
+      {/* بطاقة كود نون الحصري VTP129 */}
+      <div className="relative group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-yellow-200 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+        <div className="relative bg-black/60 border-2 border-dashed border-yellow-500/50 p-6 rounded-2xl text-center">
+          <p className="text-yellow-500 text-xs font-bold mb-3 tracking-[0.2em] uppercase">{tr.prizesTitle}</p>
+          <div 
+            onClick={() => {
+              navigator.clipboard.writeText('VTP129');
+              alert(tr.alertCopied);
+            }}
+            className="inline-block bg-yellow-500 text-black px-10 py-4 rounded-xl text-3xl font-mono font-extrabold cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-lg"
+          >
+            VTP129
+          </div>
+          <p className="text-gray-500 text-[10px] mt-3">{tr.copyBtn}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
             {/* Motivation */}
             <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-2xl p-4 text-center border border-white/10">
               <p className="text-lg font-bold text-white animate-pulse">💪 {tr.motivation.start}</p>
