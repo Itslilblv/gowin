@@ -24,6 +24,7 @@ const questionsSets = {
 };
 
 const titles = ["الزعيم", "العميد", "الملكي", "الليث", "الفارس", "الصقر", "العالمي", "الممتاز", "المحترف", "المثابر", "المقاتل", "الذيب", "الجندي", "البارع", "الذكي", "الهداف", "القناص", "المبدع", "المتألق", "الناشئ"];
+const opponentsList = ["عبدالعزيز_99", "سارة_خالد", "Legend_Goat", "الزعيم_01", "صقر_الشرقية", "The_Wolf_KSA", "عزوز_باشا", "فهد_01"];
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -34,6 +35,10 @@ function App() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState('set1');
   const [leagueWinner, setLeagueWinner] = useState(null);
+
+  // حالات خاصة بشاشة البحث عن خصم
+  const [isMatchmaking, setIsMatchmaking] = useState(false);
+  const [matchmakingText, setMatchmakingText] = useState("");
 
   const runLeague = (allPlayers) => {
     let currentRound = [...allPlayers];
@@ -56,16 +61,54 @@ function App() {
 
   const startChallenge = () => {
     if (!playerName.trim() || players.length >= 20) return;
-    const newPlayer = { id: Date.now().toString(), name: playerName, joinedAt: new Date().toLocaleTimeString('ar-SA') };
-    const updated = [...players, newPlayer];
-    setPlayers(updated);
-    setGameStarted(true);
-    setActiveTab('challenge');
-    if (updated.length >= 20) runLeague(updated);
+    
+    // بدء عملية البحث عن خصم (Matchmaking)
+    setIsMatchmaking(true);
+    const steps = [
+      { t: "جاري فحص الاتصال...", d: 1500 },
+      { t: "البحث عن منافس متصل الآن...", d: 2500 },
+      { t: `تم العثور على الخصم: ${opponentsList[Math.floor(Math.random() * opponentsList.length)]}`, d: 2000 },
+      { t: "جاري تهيئة المربع الذهبي...", d: 1500 }
+    ];
+
+    let totalDelay = 0;
+    steps.forEach((step, i) => {
+      setTimeout(() => {
+        setMatchmakingText(step.t);
+        if (i === steps.length - 1) {
+          setTimeout(() => {
+            setIsMatchmaking(false);
+            // الدخول الفعلي للعبة بعد انتهاء الشاشة السوداء
+            const newPlayer = { id: Date.now().toString(), name: playerName, joinedAt: new Date().toLocaleTimeString('ar-SA') };
+            const updated = [...players, newPlayer];
+            setPlayers(updated);
+            setGameStarted(true);
+            setActiveTab('challenge');
+            if (updated.length >= 20) runLeague(updated);
+          }, step.d);
+        }
+      }, totalDelay);
+      totalDelay += step.d;
+    });
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white font-sans bg-[#0d041a]">
+      
+      {/* شاشة البحث عن خصم (تظهر فقط عند الضغط على الدخول) */}
+      {isMatchmaking && (
+        <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-center p-6">
+          <h2 className="text-2xl md:text-4xl font-black text-yellow-400 animate-pulse italic">
+            {matchmakingText}
+          </h2>
+          <div className="mt-8 flex gap-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce"></div>
+          </div>
+        </div>
+      )}
+
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d041a] via-[#1b0a33] to-[#2d1255]"></div>
       <div className="absolute top-20 right-10 text-6xl opacity-20 animate-pulse">🌙</div>
       <div className="absolute top-10 left-8 text-4xl opacity-40 animate-bounce">🏮</div>
@@ -104,7 +147,6 @@ function App() {
       <main className="relative z-10 container mx-auto p-4 pb-24 text-center">
         {activeTab === 'home' && (
           <div className="max-w-2xl mx-auto space-y-8">
-            {/* الشعار المحدث بالاسم المنور والنابض */}
             <div>
               <h1 className="text-6xl font-black text-yellow-400 py-4 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)] animate-pulse">⚔️ GOWIN ⚔️</h1>
               <div className="relative inline-block">
@@ -117,11 +159,10 @@ function App() {
 
             <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
               <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder={language === 'arabic' ? "سجل اسمك في التحدي..." : "Join the challenge..."} className="w-full bg-white/10 p-4 rounded-xl text-center text-xl outline-none mb-4" />
-              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg">🚀 {language === 'arabic' ? "دخول التحدي" : "JOIN CHALLENGE"}</button>
+              <button onClick={startChallenge} className="w-full py-4 rounded-2xl font-bold text-xl bg-yellow-500 text-black shadow-lg transition-transform active:scale-95">🚀 {language === 'arabic' ? "دخول التحدي" : "JOIN CHALLENGE"}</button>
               <p className="mt-2 text-yellow-400 font-bold">المقاعد المتاحة: {20 - players.length} / 20</p>
             </div>
 
-            {/* الكرت الذهبي النابض */}
             <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-[pulse_3s_infinite] transition-all">
               <h2 className="text-2xl font-black text-yellow-400 uppercase tracking-widest">The Golden Goat</h2>
               <div className="mt-4 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 shadow-[inset_0_0_15px_rgba(234,179,8,0.1)]">
@@ -133,7 +174,6 @@ function App() {
           </div>
         )}
 
-        {/* باقي التبويبات بدون تغيير */}
         {activeTab === 'leaderboard' && (
           <div className="max-w-md mx-auto text-right">
             <h2 className="text-2xl font-bold text-yellow-400 mb-6">قائمة الترتيب</h2>
@@ -191,7 +231,7 @@ function App() {
             <h2 className="text-2xl font-bold mb-10 px-4">{questionsSets[currentSet][language][currentQuestionIndex]?.question}</h2>
             <div className="grid gap-4 px-6">
               {questionsSets[currentSet][language][currentQuestionIndex]?.options.map((opt, i) => (
-                <button key={i} onClick={() => { if(currentQuestionIndex < questionsSets[currentSet][language].length - 1) setCurrentQuestionIndex(prev => prev + 1); else { setGameStarted(false); setActiveTab('home'); } }} className="p-5 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-yellow-500 hover:text-black transition-all">{opt}</button>
+                <button key={i} onClick={() => { if(currentQuestionIndex < questionsSets[currentSet][language].length - 1) setCurrentQuestionIndex(prev => prev + 1); else { setGameStarted(false); setActiveTab('home'); setCurrentQuestionIndex(0); } }} className="p-5 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-yellow-500 hover:text-black transition-all">{opt}</button>
               ))}
             </div>
           </div>
