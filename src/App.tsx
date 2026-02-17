@@ -33,7 +33,8 @@ const tournamentData = [
   ]}
 ];
 
-const initialOpponents = ["خالد", "ريان", "أحمد", "سارة", "فهد", "نورة", "عزوز", "مريم", "سلطان", "ليلى", "بدر", "هند", "جاسم", "عبير", "نايف", "العنزي", "البرنس", "القناص", "صقر", "الذيب"];
+// 18 لاعب كما طلبت
+const initialOpponents = ["خالد", "ريان", "أحمد", "سارة", "فهد", "نورة", "عزوز", "مريم", "سلطان", "ليلى", "بدر", "هند", "جاسم", "عبير", "نايف", "العنزي", "البرنس", "القناص"];
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -42,7 +43,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [leagueWinner, setLeagueWinner] = useState("الذيب"); 
+  const [leagueWinner, setLeagueWinner] = useState("القناص"); 
   const [isMatchmaking, setIsMatchmaking] = useState(false);
   const [matchmakingText, setMatchmakingText] = useState("");
 
@@ -97,7 +98,7 @@ function App() {
 
       <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="whitespace-nowrap animate-[marquee_15s_linear_infinite] text-black font-black text-xs uppercase">
-          <span className="mx-8">🏆 دوري GOWIN الرمضاني - نظام المجموعات والأدوار كامل 🏆</span>
+          <span className="mx-8">🏆 دوري GOWIN الرمضاني - تحدي 18 لاعب بنظام المجموعات 🏆</span>
           <span className="mx-8">🎁 كود نون: VTP129 🎁</span>
         </div>
       </div>
@@ -131,42 +132,68 @@ function App() {
           </div>
         )}
 
-        {/* تبويب البث: جداول مجموعات صغيرة ونظيفة */}
+        {/* تبويب البث المباشر المحدث حسب طلبك */}
         {activeTab === 'live' && (
-          <div className="max-w-md mx-auto space-y-4 px-2">
-            <h2 className="text-lg font-black text-red-500 animate-pulse mb-4 italic uppercase tracking-widest">مرحلة المجموعات المباشرة 🔴</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {/* مجموعة أ */}
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-lg">
-                <h3 className="text-[10px] font-black text-yellow-500 mb-2 border-b border-white/5 pb-1">المجموعة أ</h3>
-                <div className="space-y-1.5">
-                  {["خالد", "ريان", "أحمد", "سارة"].map((name, i) => (
-                    <div key={i} className="flex justify-between items-center text-[10px] bg-black/40 p-1.5 rounded-lg border border-white/5">
-                      <span className="font-bold opacity-70">#{i+1}</span>
-                      <span className="font-black text-white/90">{name}</span>
-                      <span className="text-yellow-500">{[9, 6, 3, 0][i]}ن</span>
-                    </div>
-                  ))}
+          <div className="max-w-md mx-auto space-y-6 px-2">
+            <h2 className="text-lg font-black text-red-500 animate-pulse mb-4 italic uppercase tracking-widest">البث المباشر للبطولة 🔴</h2>
+            
+            {/* 4 جداول للمجموعات */}
+            <div className="grid grid-cols-2 gap-2">
+              {[0, 1, 2, 3].map((g) => (
+                <div key={g} className="bg-white/5 p-2 rounded-xl border border-white/10">
+                  <h3 className="text-[9px] font-black text-yellow-500 mb-2 uppercase tracking-tighter border-b border-white/5 pb-1">المجموعة {String.fromCharCode(65 + g)}</h3>
+                  <div className="space-y-1">
+                    {initialOpponents.slice(g * 4, (g * 4) + 4).map((name, i) => (
+                      <div key={i} className="flex justify-between items-center text-[8px] bg-black/30 p-1 rounded">
+                        <span className="font-black truncate">{name}</span>
+                        <span className="text-yellow-500">{[9, 6, 3, 1][i]}ن</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* مواجهات جارية (2 توب للمباريات) */}
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <div className="bg-yellow-500/5 p-3 rounded-xl border border-yellow-500/20">
+                <p className="text-[8px] font-bold text-yellow-500 mb-1 uppercase">مباراة 1</p>
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-between text-[10px]"><span className="text-green-400 font-black">فائز</span> <span className="font-bold">خالد</span></div>
+                  <div className="flex justify-between text-[10px]"><span className="text-red-400 font-black">خاسر</span> <span className="font-bold">ريان</span></div>
                 </div>
               </div>
-              {/* مجموعة ب */}
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-lg">
-                <h3 className="text-[10px] font-black text-yellow-500 mb-2 border-b border-white/5 pb-1">المجموعة ب</h3>
-                <div className="space-y-1.5">
-                  {["فهد", "نورة", "عزوز", "مريم"].map((name, i) => (
-                    <div key={i} className="flex justify-between items-center text-[10px] bg-black/40 p-1.5 rounded-lg border border-white/5">
-                      <span className="font-bold opacity-70">#{i+1}</span>
-                      <span className="font-black text-white/90">{name}</span>
-                      <span className="text-yellow-500">{[7, 7, 4, 1][i]}ن</span>
-                    </div>
-                  ))}
+              <div className="bg-yellow-500/5 p-3 rounded-xl border border-yellow-500/20">
+                <p className="text-[8px] font-bold text-yellow-500 mb-1 uppercase">مباراة 2</p>
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-between text-[10px]"><span className="text-red-400 font-black">خاسر</span> <span className="font-bold">أحمد</span></div>
+                  <div className="flex justify-between text-[10px]"><span className="text-green-400 font-black">فائز</span> <span className="font-bold">سارة</span></div>
                 </div>
               </div>
             </div>
-            <div className="bg-yellow-500/10 p-4 rounded-2xl border border-yellow-500/20 mt-4">
-              <p className="text-[10px] font-black text-yellow-500 uppercase tracking-tighter mb-2">مواجهة جارية الآن</p>
-              <div className="flex justify-around items-center text-sm font-black italic">
-                <span>خالد</span> <span className="text-red-500 animate-ping">VS</span> <span>ريان</span>
+
+            {/* دور الـ 8 (تويبين) */}
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <p className="text-[9px] font-black text-white/40 mb-2 italic">ربع النهائي (دور الـ 8)</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-black/40 p-2 rounded-lg border border-white/5 text-[9px] font-black flex justify-between">
+                  <span>سلطان</span> <span className="text-yellow-500 italic">VS</span> <span>ليلى</span>
+                </div>
+                <div className="bg-black/40 p-2 rounded-lg border border-white/5 text-[9px] font-black flex justify-between">
+                  <span>بدر</span> <span className="text-yellow-500 italic">VS</span> <span>هند</span>
+                </div>
+              </div>
+            </div>
+
+            {/* دور الـ 4 والنهائي (تويب واحد لكل منهما) */}
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="bg-black/40 p-2 rounded-lg border border-white/5 text-[9px]">
+                <p className="text-yellow-500 text-[7px] mb-1">نصف النهائي</p>
+                <div className="font-black flex justify-between"><span>فهد</span> <span>عزوز</span></div>
+              </div>
+              <div className="bg-yellow-500 text-black p-2 rounded-lg font-black text-[9px]">
+                <p className="text-[7px] mb-1">النهائي الكبير 🔥</p>
+                <div className="flex justify-between"><span>القناص</span> <span>نايف</span></div>
               </div>
             </div>
           </div>
@@ -206,7 +233,7 @@ function App() {
         {activeTab === 'prizes' && (
           <div className="max-w-md mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/20 text-right">
              <h2 className="text-2xl font-black text-yellow-400 mb-6 text-center italic">الجوائز 🏆</h2>
-             <p className="font-bold text-sm">اجتز المجموعات والأدوار بـ 4 أسئلة لكل دور لتصبح البطل.</p>
+             <p className="font-bold text-sm">اجتز المجموعات والأدوار بـ 4 أسئلة لكل دور لتصبح البطل وتثبت اسمك.</p>
           </div>
         )}
       </main>
