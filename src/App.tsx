@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// نظام الأسئلة: 4 لكل دور
 const tournamentData = [
   { stage: "دور المجموعات", questions: [
     { q: "ما هو الشهر الذي أنزل فيه القرآن الكريم؟", options: ["رجب", "رمضان", "شعبان", "شوال"], correct: 1 },
@@ -47,21 +46,6 @@ function App() {
   const [isMatchmaking, setIsMatchmaking] = useState(false);
   const [matchmakingText, setMatchmakingText] = useState("");
 
-  // منطق البث المباشر للمباريات
-  const [liveMatch, setLiveMatch] = useState({ p1: "خالد", p2: "ريان", stage: "المجموعات" });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const p1 = initialOpponents[Math.floor(Math.random() * initialOpponents.length)];
-      const p2 = initialOpponents[Math.floor(Math.random() * initialOpponents.length)];
-      const stages = ["المجموعات", "دور الـ 16", "ربع النهائي", "نصف النهائي", "النهائي"];
-      if (p1 !== p2) {
-        setLiveMatch({ p1, p2, stage: stages[Math.floor(Math.random() * stages.length)] });
-      }
-    }, 5000); // تغيير المباراة في البث كل 5 ثواني
-    return () => clearInterval(interval);
-  }, []);
-
   const startChallenge = () => {
     if (!playerName.trim()) return;
     setIsMatchmaking(true);
@@ -76,7 +60,6 @@ function App() {
   const handleAnswer = (selected) => {
     const currentStage = tournamentData[currentStageIdx];
     const currentQuestion = currentStage.questions[currentQuestionIdx];
-
     if (selected === currentQuestion.correct) {
       if (currentQuestionIdx < 3) {
         setCurrentQuestionIdx(prev => prev + 1);
@@ -114,7 +97,7 @@ function App() {
 
       <div className="fixed top-0 left-0 right-0 z-[100] h-10 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 flex items-center overflow-hidden border-b border-yellow-300/30">
         <div className="whitespace-nowrap animate-[marquee_15s_linear_infinite] text-black font-black text-xs uppercase">
-          <span className="mx-8">🏆 دوري GOWIN الرمضاني - شاهد البث المباشر للمباريات 🏆</span>
+          <span className="mx-8">🏆 دوري GOWIN الرمضاني - نظام المجموعات والأدوار كامل 🏆</span>
           <span className="mx-8">🎁 كود نون: VTP129 🎁</span>
         </div>
       </div>
@@ -125,7 +108,7 @@ function App() {
 
       <nav className="relative z-50 flex justify-center gap-2 p-4 bg-black/20 backdrop-blur-md">
         {['home', 'leaderboard', 'live', 'prizes'].map((tab, idx) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${activeTab === tab ? 'bg-yellow-500 text-black shadow-lg scale-110' : 'bg-white/5'}`}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${activeTab === tab ? 'bg-yellow-500 text-black shadow-lg' : 'bg-white/5'}`}>
             <span className="text-2xl">{['🏠', '📊', '🔴', '🎁'][idx]}</span>
           </button>
         ))}
@@ -134,41 +117,56 @@ function App() {
       <main className="relative z-10 container mx-auto p-4 pb-24 text-center">
         {activeTab === 'home' && (
           <div className="max-w-2xl mx-auto space-y-8">
-            <h1 className="text-6xl font-black text-yellow-400 py-4 animate-pulse uppercase">⚔️ GOWIN ⚔️</h1>
+            <h1 className="text-6xl font-black text-yellow-400 py-4 animate-pulse">⚔️ GOWIN ⚔️</h1>
             <div className="bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl">
               <input type="text" value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="اسمك للدوري..." className="w-full bg-black/40 p-4 rounded-2xl text-center text-xl outline-none mb-4 border border-yellow-500/20" />
               <button onClick={startChallenge} className="w-full py-5 rounded-2xl font-black text-xl bg-yellow-500 text-black shadow-lg">🚀 دخول الدوري</button>
             </div>
             <div className="bg-[#1a0f00] rounded-3xl p-8 border-2 border-yellow-600 shadow-xl">
-              <h2 className="text-xl font-bold text-yellow-400 mb-4 italic uppercase tracking-widest">The Golden Goat</h2>
-              <div className="p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 shadow-inner">
-                <p className="text-3xl font-black text-white italic">{leagueWinner ? `🏆 ${leagueWinner} 🏆` : "⏳ بانتظار البطل..."}</p>
+              <h2 className="text-xl font-bold text-yellow-400 mb-4 italic uppercase">The Golden Goat</h2>
+              <div className="p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
+                <p className="text-3xl font-black text-white">{leagueWinner ? `🏆 ${leagueWinner} 🏆` : "⏳ بانتظار البطل..."}</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* بث المباشر المحدث */}
+        {/* تبويب البث: جداول مجموعات صغيرة ونظيفة */}
         {activeTab === 'live' && (
-          <div className="max-w-md mx-auto space-y-8 animate-fadeIn">
-            <h2 className="text-xl font-black text-red-500 animate-pulse italic uppercase tracking-widest">بث مباشر للمباريات 🔴</h2>
-            <div className="bg-gradient-to-b from-white/10 to-transparent p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
-              <p className="text-yellow-500 text-xs font-black mb-6 uppercase tracking-widest italic border-b border-yellow-500/20 pb-2">
-                {liveMatch.stage} - جاري الآن
-              </p>
-              <div className="flex justify-between items-center bg-black/60 p-8 rounded-[2rem] border border-yellow-500/10 relative overflow-hidden">
-                 <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-black font-black text-xl shadow-lg">?</div>
-                    <span className="text-sm font-black uppercase tracking-tighter">{liveMatch.p1}</span>
-                 </div>
-                 <div className="text-yellow-500 font-black italic text-xl animate-bounce">VS</div>
-                 <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white font-black text-xl border border-white/10">?</div>
-                    <span className="text-sm font-black uppercase tracking-tighter">{liveMatch.p2}</span>
-                 </div>
+          <div className="max-w-md mx-auto space-y-4 px-2">
+            <h2 className="text-lg font-black text-red-500 animate-pulse mb-4 italic uppercase tracking-widest">مرحلة المجموعات المباشرة 🔴</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {/* مجموعة أ */}
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-lg">
+                <h3 className="text-[10px] font-black text-yellow-500 mb-2 border-b border-white/5 pb-1">المجموعة أ</h3>
+                <div className="space-y-1.5">
+                  {["خالد", "ريان", "أحمد", "سارة"].map((name, i) => (
+                    <div key={i} className="flex justify-between items-center text-[10px] bg-black/40 p-1.5 rounded-lg border border-white/5">
+                      <span className="font-bold opacity-70">#{i+1}</span>
+                      <span className="font-black text-white/90">{name}</span>
+                      <span className="text-yellow-500">{[9, 6, 3, 0][i]}ن</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="mt-6 text-[10px] text-white/30 font-bold uppercase italic tracking-widest">
-                يتم تحديث المواجهات بناءً على نشاط اللاعبين...
+              {/* مجموعة ب */}
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-lg">
+                <h3 className="text-[10px] font-black text-yellow-500 mb-2 border-b border-white/5 pb-1">المجموعة ب</h3>
+                <div className="space-y-1.5">
+                  {["فهد", "نورة", "عزوز", "مريم"].map((name, i) => (
+                    <div key={i} className="flex justify-between items-center text-[10px] bg-black/40 p-1.5 rounded-lg border border-white/5">
+                      <span className="font-bold opacity-70">#{i+1}</span>
+                      <span className="font-black text-white/90">{name}</span>
+                      <span className="text-yellow-500">{[7, 7, 4, 1][i]}ن</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="bg-yellow-500/10 p-4 rounded-2xl border border-yellow-500/20 mt-4">
+              <p className="text-[10px] font-black text-yellow-500 uppercase tracking-tighter mb-2">مواجهة جارية الآن</p>
+              <div className="flex justify-around items-center text-sm font-black italic">
+                <span>خالد</span> <span className="text-red-500 animate-ping">VS</span> <span>ريان</span>
               </div>
             </div>
           </div>
@@ -176,19 +174,15 @@ function App() {
 
         {activeTab === 'challenge' && gameStarted && (
           <div className="max-w-2xl mx-auto py-10 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md shadow-2xl">
-            <div className="mb-6">
-              <span className="bg-yellow-500 text-black px-6 py-1 rounded-full font-black text-[10px] uppercase tracking-widest italic shadow-lg">
+            <div className="mb-4">
+              <span className="bg-yellow-500 text-black px-4 py-1 rounded-full font-black text-xs uppercase italic">
                 {tournamentData[currentStageIdx].stage}
               </span>
             </div>
-            <h2 className="text-2xl font-bold mb-10 px-6 leading-relaxed">
-                {tournamentData[currentStageIdx].questions[currentQuestionIdx].q}
-            </h2>
-            <div className="grid gap-4 px-8">
+            <h2 className="text-2xl font-bold mb-10 px-4">{tournamentData[currentStageIdx].questions[currentQuestionIdx].q}</h2>
+            <div className="grid gap-4 px-6">
               {tournamentData[currentStageIdx].questions[currentQuestionIdx].options.map((opt, i) => (
-                <button key={i} onClick={() => handleAnswer(i)} className="p-5 bg-white/5 border border-white/10 rounded-2xl font-black text-xl hover:bg-yellow-500 hover:text-black transition-all active:scale-95 text-right pr-10 shadow-md">
-                  {opt}
-                </button>
+                <button key={i} onClick={() => handleAnswer(i)} className="p-5 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-yellow-500 hover:text-black transition-all">{opt}</button>
               ))}
             </div>
           </div>
@@ -196,15 +190,13 @@ function App() {
 
         {activeTab === 'leaderboard' && (
           <div className="max-w-md mx-auto">
-             <h2 className="text-2xl font-black text-yellow-400 mb-6 italic uppercase tracking-widest">قائمة المتصدرين 📊</h2>
-             <div className="bg-white/5 rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+             <h2 className="text-2xl font-black text-yellow-400 mb-6 italic uppercase">المنافسون 📊</h2>
+             <div className="bg-white/5 rounded-3xl border border-white/10 overflow-hidden">
               {players.map((p, i) => (
-                <div key={i} className="flex justify-between p-5 border-b border-white/5 items-center hover:bg-white/5 transition-colors">
-                  <span className="text-yellow-500 font-black">#{i+1}</span>
+                <div key={i} className="flex justify-between p-4 border-b border-white/5 items-center">
+                  <span className="text-yellow-500 font-bold">#{i+1}</span>
                   <span className="font-bold tracking-tighter">{p.name}</span>
-                  <span className="text-[9px] text-green-400 font-black flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> LIVE
-                  </span>
+                  <span className="text-[9px] text-green-400 font-black flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> متصل</span>
                 </div>
               ))}
             </div>
@@ -212,23 +204,17 @@ function App() {
         )}
 
         {activeTab === 'prizes' && (
-          <div className="max-w-md mx-auto bg-gradient-to-t from-yellow-500/10 to-transparent p-10 rounded-[2rem] border border-yellow-500/20 text-right shadow-xl">
-             <h2 className="text-2xl font-black text-yellow-400 mb-6 text-center italic uppercase">الجوائز 🏆</h2>
-             <p className="font-bold text-sm leading-7">1. اجتز 4 أسئلة في كل دور لتصل للنهائي.</p>
-             <p className="font-bold text-sm leading-7">2. بطل النهائي يثبت اسمه كـ "القوت" في واجهة الموقع.</p>
+          <div className="max-w-md mx-auto bg-yellow-500/10 p-8 rounded-3xl border border-yellow-500/20 text-right">
+             <h2 className="text-2xl font-black text-yellow-400 mb-6 text-center italic">الجوائز 🏆</h2>
+             <p className="font-bold text-sm">اجتز المجموعات والأدوار بـ 4 أسئلة لكل دور لتصبح البطل.</p>
           </div>
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-6 text-center bg-black/80 backdrop-blur-xl border-t border-white/5 z-50">
-        <a href="https://instagram.com/_itlulp" target="_blank" className="text-yellow-500 font-black text-[10px] tracking-[0.3em] uppercase">@_ITLULP</a>
+      <footer className="fixed bottom-0 left-0 right-0 p-6 text-center bg-black/60 backdrop-blur-xl border-t border-white/5">
+        <a href="https://instagram.com/_itlulp" target="_blank" className="text-yellow-500 font-black text-sm uppercase">@_ITLULP</a>
       </footer>
-
-      <style>{`
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-      `}</style>
+      <style>{` @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } } `}</style>
     </div>
   );
 }
